@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Known Places Toolkit</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <style>
+        body {
+            background-color: #005151;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        #map {
+            height: 475px;
+            width: 100%;
+        }
+
+        .leaflet-control.custom-name-radius-control {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+            color: black;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 260px;
+        }
+
+        .leaflet-control.custom-name-radius-control input[type="text"],
+        .leaflet-control.custom-name-radius-control input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        .leaflet-control.custom-name-radius-control div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .leaflet-control.custom-name-radius-control button {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5px 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #0A66C2;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            height: 30px;
+            width: 30px;
+        }
+
+        .leaflet-control.custom-name-radius-control button:hover {
+            background-color: #084d92;
+        }
+
+        #plot-point {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 16px;
+            font-size: 16px;
+            border-radius: 25px;
+            background-color: #0A66C2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+
+        #plot-point:hover {
+            background-color: #084d92;
+        }
+
+        .leaflet-control-attribution {
+            display: none;
+        }
+
+        #leaflet-control-geocoder {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        input,
+        button {
+            max-width: 300px;
+            margin: 3px;
+        }
+
+        button {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            font-size: 20px;
+            line-height: 30px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 50%;
+            background-color: #0A66C2;
+            color: white;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #084d92;
+        }
+
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 80%;
+            color: white;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #333;
+        }
+
+        td {
+            background-color: #444;
+        }
+
+        td.action-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #444;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .delete-btn {
+            background-color: red;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 14px;
+            width: auto;
+            min-width: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 30px;
+        }
+
+        .delete-btn:hover {
+            background-color: darkred;
+        }
+
+        #plot-point {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 16px;
+            font-size: 16px;
+            border-radius: 25px;
+            background-color: #0A66C2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            width: auto;
+        }
+
+        #plot-point:hover {
+            background-color: #084d92;
+        }
+
+        #name-input {
+            width: 200px;
+            margin-top: 5px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        #upload-btn,
+        #download-btn {
+            background-color: #0A66C2;
+            color: white;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+            width: auto;
+            min-width: 80px;
+            text-align: center;
+            white-space: nowrap;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #upload-btn:hover,
+        #download-btn:hover {
+            background-color: #084d92;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Known Places Toolkit</h1>
+    <div id="map" class="map"></div>
+
+    <div class="button-container">
+        <button id="upload-btn" onclick="triggerFileUpload()">Upload</button>
+        <button id="download-btn">Download</button>
+    </div>
+
+    <div class="upload-container" style="display: none;">
+        <input type="file" id="fileUpload" accept=".json" onchange="processUploadedFile()">
+        <input type="button" value="Process" onclick="processUploadedFile()" style="display: none;">
+    </div>
+
+    <table id="locationTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Radius</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will go here -->
+        </tbody>
+    </table>
+
+    <script>
+        var googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        });
+
+        var openStreet = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {});
+
+        var newMap = L.map('map', {
+            center: [42.614689, -71.324092],
+            zoom: 15,
+            layers: [googleSat]
+        });
+
+        var baseMaps = {
+            "Google Satellite": googleSat,
+            "OpenStreetMap": openStreet
+        };
+
+        var circle = null;
+        var marker = null;
+        var circlesOnMap = [];
+
+        var NameAndRadiusControl = L.Control.extend({
+            options: { position: 'topleft' },
+            onAdd: function () {
+                var container = L.DomUtil.create('div', 'leaflet-control custom-name-radius-control');
+
+                // Name input field
+                container.innerHTML = `
+            <div>
+                <label for="name-input">Name:</label>
+                <input type="text" id="name-input" placeholder="Enter name" />
+            </div>
+            <div style="margin-top: 10px;">
+                <label for="radius">Radius (m):</label>
+                <input type="number" id="radius" value="50" style="width: 60px;" />
+                <button id="minus">-</button>
+                <button id="plus">+</button>
+            </div>
+            <button id="plot-point" style="margin-top: 10px; background-color: #0A66C2;">Plot Point</button>
+        `;
+
+                // Disable click propagation for the container to prevent map dragging when interacting with inputs
+                L.DomEvent.disableClickPropagation(container);
+
+                // Event handlers for radius change
+                L.DomEvent.on(container.querySelector("#minus"), 'click', function () {
+                    updateRadius(-5);
+                });
+
+                L.DomEvent.on(container.querySelector("#plus"), 'click', function () {
+                    updateRadius(5);
+                });
+
+                // Event handler for the plot button
+                L.DomEvent.on(container.querySelector("#plot-point"), 'click', plotPoint);
+
+                return container;
+            }
+        });
+
+
+        L.Control.geocoder({ position: 'topleft', collapsed: false, placeholder: "Enter an address to search" })
+            .on('markgeocode', function (e) {
+                var latlng = e.geocode.center;
+                updateLocation(latlng.lat, latlng.lng);
+            }).addTo(newMap);
+
+        newMap.addControl(new NameAndRadiusControl());
+
+        L.control.layers(baseMaps).addTo(newMap);
+
+        newMap.on('click', function (e) {
+            updateLocation(e.latlng.lat, e.latlng.lng);
+        });
+
+        function updateLocation(lat, lng) {
+            drawCircle(lat, lng);
+        }
+
+        function drawCircle(lat, lng) {
+            var radius = parseInt(document.getElementById("radius").value) || 50;
+
+            if (circle && circle.options.color === 'blue') {
+                newMap.removeLayer(circle);
+            }
+            if (marker) newMap.removeLayer(marker);
+
+            marker = L.marker([lat, lng]).addTo(newMap);
+
+            circle = L.circle([lat, lng], {
+                color: 'blue',
+                fillColor: 'blue',
+                fillOpacity: 0.2,
+                radius: radius
+            }).addTo(newMap);
+        }
+
+        function updateRadius(change) {
+            var radiusInput = document.getElementById("radius");
+            var newRadius = parseInt(radiusInput.value) + change;
+            if (newRadius > 0) {
+                radiusInput.value = newRadius;
+                var lat = marker.getLatLng().lat;
+                var lng = marker.getLatLng().lng;
+                drawCircle(lat, lng);
+            }
+        }
+
+        // Function for manual point plotting (used on click on map or plot button)
+        function plotPoint() {
+            if (!marker) {
+                alert("Please click on the map to place a marker first.");
+                return;
+            }
+
+            var lat = marker.getLatLng().lat;
+            var lng = marker.getLatLng().lng;
+            var radius = parseInt(document.getElementById("radius").value) || 50;
+            var name = document.getElementById("name-input").value || "Unnamed Location";
+
+            if (name === "Unnamed Location") {
+                var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+                var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
+                    return row.cells[0].textContent;
+                });
+
+                var counter = 1;
+                while (existingNames.includes(name + " " + counter)) {
+                    counter++;
+                }
+                name = "Unnamed Location " + counter;
+            }
+
+            var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+            var row = table.insertRow();
+
+            var nameCell = row.insertCell(0);
+            var latCell = row.insertCell(1);
+            var lngCell = row.insertCell(2);
+            var radiusCell = row.insertCell(3);
+            var actionCell = row.insertCell(4);
+
+            nameCell.textContent = name;
+            latCell.textContent = lat.toFixed(6);
+            lngCell.textContent = lng.toFixed(6);
+            radiusCell.textContent = radius;
+
+            var deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.classList.add("delete-btn");
+
+            var viewButton = document.createElement("button");
+            viewButton.textContent = "View";
+            viewButton.classList.add("delete-btn");
+            viewButton.style.backgroundColor = "#28a745";
+            viewButton.style.marginLeft = "5px";
+
+            actionCell.appendChild(viewButton);
+            actionCell.appendChild(deleteButton);
+            actionCell.classList.add("action-cell");
+
+            var plottedCircle = L.circle([lat, lng], {
+                color: 'green',
+                fillColor: 'green',
+                fillOpacity: 0.2,
+                radius: radius
+            }).addTo(newMap);
+
+            var circleId = plottedCircle._leaflet_id;
+
+            plottedCircle.bindTooltip(name, {
+                permanent: false,
+                direction: "top",
+                offset: [0, -10]
+            });
+
+            circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
+
+            deleteButton.onclick = function () {
+                var index = circlesOnMap.findIndex(function (item) {
+                    return item.id === circleId;
+                });
+
+                if (index !== -1) {
+                    var rowToDelete = circlesOnMap[index].row;
+                    rowToDelete.parentNode.removeChild(rowToDelete);
+                    newMap.removeLayer(circlesOnMap[index].circle);
+                    circlesOnMap.splice(index, 1);
+                }
+            };
+
+            viewButton.onclick = function () {
+                newMap.setView([lat, lng], 17);
+            };
+        }
+        // Function for automatic point plotting (used by upload button)
+        function plotPlaceOnMap(name, lat, lng, radius) {
+            var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+            var row = table.insertRow();
+
+            var nameCell = row.insertCell(0);
+            var latCell = row.insertCell(1);
+            var lngCell = row.insertCell(2);
+            var radiusCell = row.insertCell(3);
+            var actionCell = row.insertCell(4);
+
+            nameCell.textContent = name;
+            latCell.textContent = lat.toFixed(6);
+            lngCell.textContent = lng.toFixed(6);
+            radiusCell.textContent = radius;
+
+            var deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.classList.add("delete-btn");
+
+            var viewButton = document.createElement("button");
+            viewButton.textContent = "View";
+            viewButton.classList.add("delete-btn");
+            viewButton.style.backgroundColor = "#28a745";
+            viewButton.style.marginLeft = "5px";
+
+            actionCell.appendChild(viewButton);
+            actionCell.appendChild(deleteButton);
+            actionCell.classList.add("action-cell");
+
+            var plottedCircle = L.circle([lat, lng], {
+                color: 'green',
+                fillColor: 'green',
+                fillOpacity: 0.2,
+                radius: radius
+            }).addTo(newMap);
+
+            var circleId = plottedCircle._leaflet_id;
+
+            plottedCircle.bindTooltip(name, {
+                permanent: false,
+                direction: "top",
+                offset: [0, -10]
+            });
+
+            circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
+
+            deleteButton.onclick = function () {
+                var index = circlesOnMap.findIndex(function (item) {
+                    return item.id === circleId;
+                });
+
+                if (index !== -1) {
+                    var rowToDelete = circlesOnMap[index].row;
+                    rowToDelete.parentNode.removeChild(rowToDelete);
+                    newMap.removeLayer(circlesOnMap[index].circle);
+                    circlesOnMap.splice(index, 1);
+                }
+            };
+
+            viewButton.onclick = function () {
+                newMap.setView([lat, lng], 17);
+            };
+        }
+
+        function triggerFileUpload() {
+            document.getElementById('fileUpload').click();
+        }
+
+        function processUploadedFile() {
+            const fileInput = document.getElementById('fileUpload');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const fileContent = e.target.result;
+                    try {
+                        const jsonData = JSON.parse(fileContent);
+
+                        console.log(jsonData);
+
+                        if (jsonData.itemsRetrieveResponses && jsonData.itemsRetrieveResponses.length > 0) {
+                            jsonData.itemsRetrieveResponses.forEach(function (item) {
+
+                                if (item.responseObjectNode && item.responseObjectNode.knownPlace) {
+                                    const knownPlace = item.responseObjectNode.knownPlace;
+                                    const name = knownPlace.name;
+                                    const latitude = knownPlace.latitude;
+                                    const longitude = knownPlace.longitude;
+                                    const radius = knownPlace.radius;
+
+                                    plotPlaceOnMap(name, latitude, longitude, radius);
+                                }
+                            });
+                        } else {
+                            console.error('Expected structure not found. Check the JSON format.');
+                            alert('The JSON format is not as expected. Please check the file.');
+                        }
+                    } catch (error) {
+                        console.error('Error parsing JSON:', error);
+                        alert('There was an error reading the JSON file.');
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                alert('No file selected.');
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>
