@@ -7,8 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
     <style>
         body {
             background-color: #005151;
@@ -54,6 +53,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            justify-content: center;
         }
 
         .leaflet-control.custom-name-radius-control button {
@@ -100,11 +100,48 @@
             display: none;
         }
 
-        #leaflet-control-geocoder {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
+        #bing-search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
         }
+
+        #bing-search-input {
+            flex-grow: 1;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+            outline: none;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        #bing-search-input:focus {
+            border-color: #0A66C2;
+            box-shadow: 0 0 5px rgba(10, 102, 194, 0.5);
+        }
+
+        #bing-search-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            background-color: #0A66C2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #bing-search-btn:hover {
+            background-color: #084d92;
+        }
+
 
         input,
         button {
@@ -241,7 +278,7 @@
 
 <body>
 
-    <h1>Known Places Toolkit</h1>
+    <h1>UKG Pro WFM - Known Places Toolkit</h1>
     <div id="map" class="map"></div>
 
     <div class="button-container">
@@ -312,10 +349,8 @@
             <button id="plot-point" style="margin-top: 10px; background-color: #0A66C2;">Plot Point</button>
         `;
 
-                // Disable click propagation for the container to prevent map dragging when interacting with inputs
                 L.DomEvent.disableClickPropagation(container);
 
-                // Event handlers for radius change
                 L.DomEvent.on(container.querySelector("#minus"), 'click', function () {
                     updateRadius(-5);
                 });
@@ -324,19 +359,62 @@
                     updateRadius(5);
                 });
 
-                // Event handler for the plot button
                 L.DomEvent.on(container.querySelector("#plot-point"), 'click', plotPoint);
 
                 return container;
             }
         });
 
+        var bingSearchControl = L.Control.extend({
+            options: { position: 'topleft' },
+            onAdd: function (map) {
+                var container = L.DomUtil.create('div', 'leaflet-control custom-name-radius-control');
+                container.innerHTML = `
+            <div id="bing-search-container">
+                <input type="text" id="bing-search-input" placeholder="Enter address" />
+                <button id="bing-search-btn">Search</button>
+            </div>
+        `;
+                L.DomEvent.disableClickPropagation(container);
+                return container;
+            }
+        });
 
-        L.Control.geocoder({ position: 'topleft', collapsed: false, placeholder: "Enter an address to search" })
-            .on('markgeocode', function (e) {
-                var latlng = e.geocode.center;
-                updateLocation(latlng.lat, latlng.lng);
-            }).addTo(newMap);
+
+        newMap.addControl(new bingSearchControl());
+
+
+        document.getElementById("bing-search-input").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                var query = document.getElementById("bing-search-input").value;
+                if (query) {
+                    searchWithBing(query);
+                }
+            }
+        });
+
+
+        function searchWithBing(query) {
+            var bingApiKey = "AmJRUjOCG5j36N82oZ3DYn-ebd3Tmzu9xrEikCDYmL735i8j6EeyfdHsVA8CEjPq";
+            var url = `https://dev.virtualearth.net/REST/v1/Locations?q=${encodeURIComponent(query)}&key=${bingApiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.resourceSets.length > 0 && data.resourceSets[0].resources.length > 0) {
+                        var location = data.resourceSets[0].resources[0].point.coordinates;
+                        updateLocation(location[0], location[1]);
+                        newMap.setView([location[0], location[1]], 17);
+                    } else {
+                        alert("Location not found. Try again.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error with Bing Maps API:", error);
+                    alert("Error fetching location. Please try again.");
+                });
+        }
+
 
         newMap.addControl(new NameAndRadiusControl());
 
@@ -575,7 +653,6 @@
                 alert('No file selected.');
             }
         }
-
 
     </script>
 </body>
