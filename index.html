@@ -316,7 +316,7 @@
 
         var newMap = L.map('map', {
             center: [42.614689, -71.324092],
-            zoom: 15,
+            zoom: 17,
             layers: [googleSat]
         });
 
@@ -393,6 +393,12 @@
             }
         });
 
+        document.getElementById("bing-search-btn").addEventListener("click", function () {
+            var query = document.getElementById("bing-search-input").value;
+            if (query) {
+                searchWithBing(query);
+            }
+        });
 
         function searchWithBing(query) {
             var bingApiKey = "AmJRUjOCG5j36N82oZ3DYn-ebd3Tmzu9xrEikCDYmL735i8j6EeyfdHsVA8CEjPq";
@@ -542,6 +548,9 @@
 
             viewButton.onclick = function () {
                 newMap.setView([lat, lng], 17);
+                document.getElementById("name-input").value = name;
+                document.getElementById("radius").value = radius;
+                updateLocation(lat, lng);
             };
         }
         // Function for automatic point plotting (used by upload button)
@@ -606,6 +615,9 @@
 
             viewButton.onclick = function () {
                 newMap.setView([lat, lng], 17);
+                document.getElementById("name-input").value = name;
+                document.getElementById("radius").value = radius;
+                updateLocation(lat, lng);
             };
         }
 
