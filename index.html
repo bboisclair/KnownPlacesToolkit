@@ -414,10 +414,12 @@
                     } else {
                         alert("Location not found. Try again.");
                     }
+                    document.getElementById("bing-search-input").value = "";
                 })
                 .catch(error => {
                     console.error("Error with Bing Maps API:", error);
                     alert("Error fetching location. Please try again.");
+                    document.getElementById("bing-search-input").value = "";
                 });
         }
 
@@ -465,94 +467,91 @@
 
         // Function for manual point plotting (used on click on map or plot button)
         function plotPoint() {
-            if (!marker) {
-                alert("Please click on the map to place a marker first.");
-                return;
-            }
+    if (!marker) {
+        alert("Please click on the map to place a marker first.");
+        return;
+    }
 
-            var lat = marker.getLatLng().lat;
-            var lng = marker.getLatLng().lng;
-            var radius = parseInt(document.getElementById("radius").value) || 50;
-            var name = document.getElementById("name-input").value || "Unnamed Location";
+    var lat = marker.getLatLng().lat;
+    var lng = marker.getLatLng().lng;
+    var radius = parseInt(document.getElementById("radius").value) || 50;
+    var name = document.getElementById("name-input").value || "Unnamed Location";
 
-            if (name === "Unnamed Location") {
-                var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
-                var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
-                    return row.cells[0].textContent;
-                });
+    var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+    var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
+        return row.cells[0].textContent;
+    });
 
-                var counter = 1;
-                while (existingNames.includes(name + " " + counter)) {
-                    counter++;
-                }
-                name = "Unnamed Location " + counter;
-            }
+    if (existingNames.includes(name)) {
+        alert("The name '" + name + "' already exists. Please choose a different name.");
+        return;
+    }
 
-            var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
-            var row = table.insertRow();
+    var row = table.insertRow();
 
-            var nameCell = row.insertCell(0);
-            var latCell = row.insertCell(1);
-            var lngCell = row.insertCell(2);
-            var radiusCell = row.insertCell(3);
-            var actionCell = row.insertCell(4);
+    var nameCell = row.insertCell(0);
+    var latCell = row.insertCell(1);
+    var lngCell = row.insertCell(2);
+    var radiusCell = row.insertCell(3);
+    var actionCell = row.insertCell(4);
 
-            nameCell.textContent = name;
-            latCell.textContent = lat.toFixed(6);
-            lngCell.textContent = lng.toFixed(6);
-            radiusCell.textContent = radius;
+    nameCell.textContent = name;
+    latCell.textContent = lat.toFixed(6);
+    lngCell.textContent = lng.toFixed(6);
+    radiusCell.textContent = radius;
 
-            var deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-            deleteButton.classList.add("delete-btn");
+    var deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.classList.add("delete-btn");
 
-            var viewButton = document.createElement("button");
-            viewButton.textContent = "View";
-            viewButton.classList.add("delete-btn");
-            viewButton.style.backgroundColor = "#28a745";
-            viewButton.style.marginLeft = "5px";
+    var viewButton = document.createElement("button");
+    viewButton.textContent = "View";
+    viewButton.classList.add("delete-btn");
+    viewButton.style.backgroundColor = "#28a745";
+    viewButton.style.marginLeft = "5px";
 
-            actionCell.appendChild(viewButton);
-            actionCell.appendChild(deleteButton);
-            actionCell.classList.add("action-cell");
+    actionCell.appendChild(viewButton);
+    actionCell.appendChild(deleteButton);
+    actionCell.classList.add("action-cell");
 
-            var plottedCircle = L.circle([lat, lng], {
-                color: 'green',
-                fillColor: 'green',
-                fillOpacity: 0.2,
-                radius: radius
-            }).addTo(newMap);
+    var plottedCircle = L.circle([lat, lng], {
+        color: 'green',
+        fillColor: 'green',
+        fillOpacity: 0.2,
+        radius: radius
+    }).addTo(newMap);
 
-            var circleId = plottedCircle._leaflet_id;
+    var circleId = plottedCircle._leaflet_id;
 
-            plottedCircle.bindTooltip(name, {
-                permanent: false,
-                direction: "top",
-                offset: [0, -10]
-            });
+    plottedCircle.bindTooltip(name, {
+        permanent: false,
+        direction: "top",
+        offset: [0, -10]
+    });
 
-            circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
+    circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
 
-            deleteButton.onclick = function () {
-                var index = circlesOnMap.findIndex(function (item) {
-                    return item.id === circleId;
-                });
+    deleteButton.onclick = function () {
+        var index = circlesOnMap.findIndex(function (item) {
+            return item.id === circleId;
+        });
 
-                if (index !== -1) {
-                    var rowToDelete = circlesOnMap[index].row;
-                    rowToDelete.parentNode.removeChild(rowToDelete);
-                    newMap.removeLayer(circlesOnMap[index].circle);
-                    circlesOnMap.splice(index, 1);
-                }
-            };
-
-            viewButton.onclick = function () {
-                newMap.setView([lat, lng], 17);
-                document.getElementById("name-input").value = name;
-                document.getElementById("radius").value = radius;
-                updateLocation(lat, lng);
-            };
+        if (index !== -1) {
+            var rowToDelete = circlesOnMap[index].row;
+            rowToDelete.parentNode.removeChild(rowToDelete);
+            newMap.removeLayer(circlesOnMap[index].circle);
+            circlesOnMap.splice(index, 1);
         }
+    };
+
+    viewButton.onclick = function () {
+        newMap.setView([lat, lng], 17);
+        document.getElementById("name-input").value = name;
+        document.getElementById("radius").value = radius;
+        updateLocation(lat, lng);
+    };
+}
+
         // Function for automatic point plotting (used by upload button)
         function plotPlaceOnMap(name, lat, lng, radius) {
             var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
