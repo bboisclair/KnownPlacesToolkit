@@ -174,7 +174,7 @@
         }
 
         table {
-            margin-top: 20px;
+            margin-top: 5px;
             border-collapse: collapse;
             width: 80%;
             color: white;
@@ -310,7 +310,8 @@
 
         #upload-btn,
         #download-btn,
-        #clear-table-btn {
+        #clear-table-btn,
+        #clear-search-btn {
             background-color: #0A66C2;
             color: white;
             font-size: 14px;
@@ -330,7 +331,8 @@
 
         #upload-btn:hover,
         #download-btn:hover,
-        #clear-table-btn:hover {
+        #clear-table-btn:hover
+        #clear-search-btn:hover {
             background-color: #084d92;
         }
 
@@ -339,7 +341,6 @@
             justify-content: flex-start;
             align-items: center;
             width: 80%;
-            margin-top: 20px;
         }
 
         #searchInput {
@@ -473,6 +474,14 @@
             height: 100%;
             width: 95%;
         }
+
+        .table-search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -494,10 +503,11 @@
             <input type="button" value="Process" onclick="processUploadedFile()" style="display: none;">
         </div>
 
-        <div class="search-container" id="search-container">
-            <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
-        </div>
-        <div class="table-container">
+        <div class="table-search-container">
+            <div class="search-container" id="search-container">
+                <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
+                <button id="clear-search-btn" onclick="clearSearch()">Clear Search</button>
+            </div>
             <table id="locationTable">
                 <thead>
                     <tr>
@@ -829,8 +839,8 @@
         actionCell.classList.add("action-cell");
 
         var plottedCircle = L.circle([lat, lng], {
-            color: 'green',
-            fillColor: 'green',
+            color: 'red',
+            fillColor: 'red',
             fillOpacity: 0.2,
             radius: radius
         }).addTo(newMap);
@@ -859,13 +869,15 @@
         };
 
         viewButton.onclick = function () {
-            newMap.setView([lat, lng], 17);
+            newMap.setView([lat, lng]);
             document.getElementById("name-input").value = name;
+            document.getElementById("searchInput").value = name;
             document.getElementById("radius").value = radius;
             document.getElementById("location-input").value = locationInput.value;
             document.getElementById("validation-order-input").value = validationOrderInput.value;
             updateLocation(lat, lng);
             window.scrollTo(0, 0);
+            filterTable();
         };
 
         showSearchBar();
@@ -912,8 +924,8 @@
         actionCell.classList.add("action-cell");
 
         var plottedCircle = L.circle([lat, lng], {
-            color: 'green',
-            fillColor: 'green',
+            color: 'red',
+            fillColor: 'red',
             fillOpacity: 0.2,
             radius: radius
         }).addTo(newMap);
@@ -942,11 +954,15 @@
         };
 
         viewButton.onclick = function () {
-            newMap.setView([lat, lng], 17);
+            newMap.setView([lat, lng]);
             document.getElementById("name-input").value = name;
+            document.getElementById("searchInput").value = name;
             document.getElementById("radius").value = radius;
+            document.getElementById("location-input").value = locationInput.value; // Set location input value
+            document.getElementById("validation-order-input").value = validationOrderInput.value;
             updateLocation(lat, lng);
             window.scrollTo(0, 0);
+            filterTable();
         };
     }
 
@@ -1175,6 +1191,11 @@
         document.getElementById('search-container').style.display = 'flex';
     }
 
+    function clearSearch() {
+        document.getElementById("searchInput").value = '';
+        filterTable();
+    }
+
     function resetFileInput() {
         document.getElementById('fileUpload').value = '';
     }
@@ -1182,7 +1203,7 @@
     window.addEventListener('beforeunload', function (e) {
         if (!isClearingTable) {
             var confirmationMessage = 'Are you sure you want to leave? All unsaved changes will be lost.';
-            e.returnValue = confirmationMessage; 
+            e.returnValue = confirmationMessage;
             return confirmationMessage;
         }
     });
