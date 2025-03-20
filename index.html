@@ -310,7 +310,7 @@
             align-items: center;
         }
 
-        #help-content button{
+        #help-content button {
             background-color: #0A66C2;
             color: white;
             font-size: 14px;
@@ -799,7 +799,14 @@
             return row.cells[0].textContent;
         });
 
-        if (existingNames.includes(name)) {
+        // Check for duplicate "Unnamed Location" and add a number if necessary
+        if (name === "Unnamed Location") {
+            var count = 1;
+            while (existingNames.includes(name)) {
+                name = "Unnamed Location " + count;
+                count++;
+            }
+        } else if (existingNames.includes(name)) {
             alert("The name '" + name + "' already exists. Please choose a different name.");
             return;
         }
@@ -821,7 +828,7 @@
 
         var locationInput = document.createElement("input");
         locationInput.type = "text";
-        locationInput.value = "";
+        locationInput.value = document.getElementById("location-input").value || "";
         locationCell.appendChild(locationInput);
 
         var validationOrderInput = document.createElement("input");
@@ -859,6 +866,7 @@
         circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
 
         deleteButton.onclick = function () {
+        if (confirm("Are you sure you want to delete this location?")) {
             var index = circlesOnMap.findIndex(function (item) {
                 return item.id === circleId;
             });
@@ -869,7 +877,8 @@
                 newMap.removeLayer(circlesOnMap[index].circle);
                 circlesOnMap.splice(index, 1);
             }
-        };
+        }
+    };
 
         viewButton.onclick = function () {
             newMap.setView([lat, lng]);
@@ -944,6 +953,7 @@
         circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
 
         deleteButton.onclick = function () {
+        if (confirm("Are you sure you want to delete this location?")) {
             var index = circlesOnMap.findIndex(function (item) {
                 return item.id === circleId;
             });
@@ -954,7 +964,8 @@
                 newMap.removeLayer(circlesOnMap[index].circle);
                 circlesOnMap.splice(index, 1);
             }
-        };
+        }
+    };
 
         viewButton.onclick = function () {
             newMap.setView([lat, lng]);
