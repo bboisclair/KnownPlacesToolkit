@@ -23,7 +23,7 @@
         }
 
         #map {
-            height: 475px;
+            height: 500px;
             width: 100%;
         }
 
@@ -165,6 +165,12 @@
 
         button:hover {
             background-color: #084d92;
+        }
+
+        .table-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
         }
 
         table {
@@ -352,458 +358,705 @@
             border-color: #0A66C2;
             box-shadow: 0 0 5px rgba(10, 102, 194, 0.5);
         }
+
+        .leaflet-control-zoom {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+        }
+
+        .leaflet-control-zoom a {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            background-color: #0A66C2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: none;
+            outline: none;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background-color: #084d92;
+            border: none;
+        }
+
+        .leaflet-touch .leaflet-control-layers,
+        .leaflet-touch .leaflet-bar {
+            border: none;
+            background-clip: padding-box;
+            box-shadow: none;
+        }
+
+        #help-content {
+            display: none;
+        }
+
+        #help-content button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 16px;
+            font-size: 16px;
+            border-radius: 25px;
+            background-color: #0A66C2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            width: auto;
+            margin-bottom: 20px;
+        }
+
+        #help-content button:hover {
+            background-color: #084d92;
+        }
+
+        #help-content body {
+            background-color: #005151;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #help-content h1,
+        #help-content h2 {
+            color: #ffffff;
+        }
+
+        #help-content h3 {
+            color: #0A66C2;
+        }
+
+        #help-content .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: #003333;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: left;
+        }
+
+        #help-content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #help-content ul li {
+            margin-bottom: 10px;
+        }
+
+        #help-content ul li::before {
+            content: "•";
+            color: #0A66C2;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        #main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+            width: 95%;
+        }
     </style>
 </head>
 
 <body>
 
     <h1>UKG Pro WFM - Known Places Toolkit</h1>
-    <div id="map" class="map"></div>
+    <a href="#" id="help-link" style="position: absolute; top: 10px; right: 10px; color: white;">Help</a>
+    <div id="main-content">
+        <div id="map" class="map"></div>
 
-    <div class="button-container">
-        <button id="upload-btn" onclick="triggerFileUpload()">Upload</button>
-        <button id="download-btn" onclick="downloadCSV()">Download</button>
-        <button id="clear-table-btn" onclick="clearTable()">Clear Table</button>
+        <div class="button-container">
+            <button id="upload-btn" onclick="triggerFileUpload()">Upload</button>
+            <button id="download-btn" onclick="downloadCSV()">Download</button>
+            <button id="clear-table-btn" onclick="clearTable()">Clear Table</button>
+        </div>
+
+        <div class="upload-container" style="display: none;">
+            <input type="file" id="fileUpload" accept=".json,.csv" onchange="processUploadedFile()">
+            <input type="button" value="Process" onclick="processUploadedFile()" style="display: none;">
+        </div>
+
+        <div class="search-container" id="search-container">
+            <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
+        </div>
+        <div class="table-container">
+            <table id="locationTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Radius</th>
+                        <th>Location</th>
+                        <th>Validation Order</th>
+                        <th class="action-cell">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will go here -->
+                </tbody>
+            </table>
+        </div>
     </div>
+    <div id="help-content">
+        <button id="back-button">Back</button>
+        <div class="container">
+            <h1>Known Places Toolkit Help Documentation</h1>
+            <h2>Overview</h2>
+            <p>The Known Places Toolkit is a web-based application that allows users to plot and manage known places
+                on a map. Users can add, view, and delete locations, as well as upload and download location data in
+                JSON or CSV format.</p>
 
-    <div class="upload-container" style="display: none;">
-        <input type="file" id="fileUpload" accept=".json,.csv" onchange="processUploadedFile()">
-        <input type="button" value="Process" onclick="processUploadedFile()" style="display: none;">
-    </div>
+            <h2>Features</h2>
+            <ul>
+                <li><strong>Map Display:</strong> Interactive map with Google Satellite and OpenStreetMap layers.
+                </li>
+                <li><strong>Add Locations:</strong> Plot points on the map with custom names, radius, locations, and
+                    validation orders.</li>
+                <li><strong>Upload/Download Data:</strong> Upload location data from JSON or CSV files and download
+                    the current data as a CSV file.</li>
+                <li><strong>Search:</strong> Search for locations by name.</li>
+                <li><strong>Clear Table:</strong> Clear all locations from the table and map.</li>
+            </ul>
 
-    <div class="search-container" id="search-container">
-        <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
-    </div>
+            <h2>How to Use</h2>
+            <h3>Adding Locations</h3>
+            <h4>Manual Plotting:</h4>
+            <ul>
+                <li>Click on the map to place a marker.</li>
+                <li>Fill in the "Name", "Radius", "Location", and "Validation Order" fields in the control panel.
+                </li>
+                <li>Click the "Plot Point" button to add the location to the map and table.</li>
+            </ul>
+            <h4>Automatic Plotting:</h4>
+            <ul>
+                <li>Click the "Upload" button to upload a JSON or CSV file containing location data.</li>
+                <li>The locations will be automatically plotted on the map and added to the table.</li>
+            </ul>
 
-    <table id="locationTable">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Radius</th>
-                <th>Location</th>
-                <th>Validation Order</th>
-                <th class="action-cell">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Data will go here -->
-        </tbody>
-    </table>
+            <h3>Viewing and Deleting Locations</h3>
+            <ul>
+                <li><strong>View:</strong> Click the "View" button next to a location in the table to center the map
+                    on that location.</li>
+                <li><strong>Delete:</strong> Click the "Delete" button next to a location in the table to remove it
+                    from the map and table.</li>
+            </ul>
 
-    <script>
-        var googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-            maxZoom: 20,
-            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-        });
+            <h3>Uploading Data</h3>
+            <ul>
+                <li>Click the "Upload" button.</li>
+                <li>Select a JSON or CSV file from your computer.</li>
+                <li>The locations from the file will be plotted on the map and added to the table.</li>
+            </ul>
 
-        var openStreet = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {});
+            <h3>Downloading Data</h3>
+            <ul>
+                <li>Click the "Download" button.</li>
+                <li>A CSV file containing the current locations will be downloaded to your computer.</li>
+            </ul>
 
-        var newMap = L.map('map', {
-            center: [42.614689, -71.324092],
-            zoom: 17,
-            layers: [googleSat]
-        });
+            <h3>Clearing the Table</h3>
+            <ul>
+                <li>Click the "Clear Table" button.</li>
+                <li>Confirm the action in the prompt.</li>
+                <li>All locations will be removed from the map and table.</li>
+            </ul>
 
-        var baseMaps = {
-            "Google Satellite": googleSat,
-            "OpenStreetMap": openStreet
-        };
+            <h3>Searching for Locations</h3>
+            <ul>
+                <li>Enter a name in the search bar.</li>
+                <li>The table will filter to show only locations that match the search query.</li>
+            </ul>
 
-        var circle = null;
-        var marker = null;
-        var circlesOnMap = [];
+            <h2>Notes</h2>
+            <ul>
+                <li>Ensure that the JSON or CSV file format matches the expected structure for successful uploads.
+                </li>
+                <li>The map supports zooming and panning for better navigation.</li>
+            </ul>
+            <br>
+            <center>
+                <p>Disclaimer: This is not a supported product by UKG. There is no guarantee that this application
+                    will function as intended. Use at your own risk.</p>
+            </center>
+        </div>
+</body>
 
-        var NameAndRadiusControl = L.Control.extend({
-            options: { position: 'topleft' },
-            onAdd: function () {
-                var container = L.DomUtil.create('div', 'leaflet-control custom-name-radius-control');
+</html>
+</div>
+<script>
+    var googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    });
 
-                // Name input field
-                container.innerHTML = `
+    var openStreet = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {});
+
+    var newMap = L.map('map', {
+        center: [42.614689, -71.324092],
+        zoom: 17,
+        layers: [googleSat]
+    });
+
+    var baseMaps = {
+        "Google Satellite": googleSat,
+        "OpenStreetMap": openStreet
+    };
+
+    var circle = null;
+    var marker = null;
+    var circlesOnMap = [];
+
+    var NameAndRadiusControl = L.Control.extend({
+        options: { position: 'topleft' },
+        onAdd: function () {
+            var container = L.DomUtil.create('div', 'leaflet-control custom-name-radius-control');
+
+            // Name input field
+            container.innerHTML = `
             <div>
-                <label for="name-input">Name:</label>
-                <input type="text" id="name-input" placeholder="Enter name" />
-            </div>
-            <div style="margin-top: 10px;">
-                <label for="radius">Radius (m):</label>
-                <input type="number" id="radius" value="50" style="width: 60px;" />
-                <button id="minus">-</button>
-                <button id="plus">+</button>
-            </div>
-            <button id="plot-point" style="margin-top: 10px; background-color: #0A66C2;">Plot Point</button>
-        `;
+                    <label for="name-input">Name:</label>
+                    <input type="text" id="name-input" placeholder="Enter name" />
+                </div>
+                <div style="margin-top: 10px;">
+                    <label for="radius">Radius (m):</label>
+                    <input type="number" id="radius" value="50" style="width: 60px;" />
+                    <button id="minus">-</button>
+                    <button id="plus">+</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <label for="location-input">Location:</label>
+                    <input type="text" id="location-input" placeholder="Business Structure Nodes" />
+                </div>
+                <div style="margin-top: 10px;">
+                    <label for="validation-order-input">Validation Order:</label>
+                    <input type="text" id="validation-order-input" placeholder="Enter validation order" value="GPS,WIFI" />
+                </div>
+                <button id="plot-point" style="margin-top: 10px; background-color: #0A66C2;">Plot Point</button>
+            `;
 
-                L.DomEvent.disableClickPropagation(container);
+            L.DomEvent.disableClickPropagation(container);
 
-                L.DomEvent.on(container.querySelector("#minus"), 'click', function () {
-                    updateRadius(-5);
-                });
+            L.DomEvent.on(container.querySelector("#minus"), 'click', function () {
+                updateRadius(-5);
+            });
 
-                L.DomEvent.on(container.querySelector("#plus"), 'click', function () {
-                    updateRadius(5);
-                });
+            L.DomEvent.on(container.querySelector("#plus"), 'click', function () {
+                updateRadius(5);
+            });
 
-                L.DomEvent.on(container.querySelector("#plot-point"), 'click', plotPoint);
+            L.DomEvent.on(container.querySelector("#plot-point"), 'click', plotPoint);
 
-                return container;
-            }
-        });
+            return container;
+        }
+    });
 
-        var bingSearchControl = L.Control.extend({
-            options: { position: 'topleft' },
-            onAdd: function (map) {
-                var container = L.DomUtil.create('div', 'leaflet-control custom-name-radius-control');
-                container.innerHTML = `
+    var bingSearchControl = L.Control.extend({
+        options: { position: 'topleft' },
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'leaflet-control custom-name-radius-control');
+            container.innerHTML = `
             <div id="bing-search-container">
                 <input type="text" id="bing-search-input" placeholder="Enter address" />
                 <button id="bing-search-btn">Search</button>
             </div>
         `;
-                L.DomEvent.disableClickPropagation(container);
-                return container;
-            }
-        });
+            L.DomEvent.disableClickPropagation(container);
+            return container;
+        }
+    });
 
 
-        newMap.addControl(new bingSearchControl());
+    newMap.addControl(new bingSearchControl());
 
 
-        document.getElementById("bing-search-input").addEventListener("keypress", function (e) {
-            if (e.key === "Enter") {
-                var query = document.getElementById("bing-search-input").value;
-                if (query) {
-                    searchWithBing(query);
-                }
-            }
-        });
-
-        document.getElementById("bing-search-btn").addEventListener("click", function () {
+    document.getElementById("bing-search-input").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
             var query = document.getElementById("bing-search-input").value;
             if (query) {
                 searchWithBing(query);
             }
-        });
-
-        function searchWithBing(query) {
-            var bingApiKey = "AmJRUjOCG5j36N82oZ3DYn-ebd3Tmzu9xrEikCDYmL735i8j6EeyfdHsVA8CEjPq";
-            var url = `https://dev.virtualearth.net/REST/v1/Locations?q=${encodeURIComponent(query)}&key=${bingApiKey}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.resourceSets.length > 0 && data.resourceSets[0].resources.length > 0) {
-                        var location = data.resourceSets[0].resources[0].point.coordinates;
-                        updateLocation(location[0], location[1]);
-                        newMap.setView([location[0], location[1]], 17);
-                    } else {
-                        alert("Location not found. Try again.");
-                    }
-                    document.getElementById("bing-search-input").value = "";
-                })
-                .catch(error => {
-                    console.error("Error with Bing Maps API:", error);
-                    alert("Error fetching location. Please try again.");
-                    document.getElementById("bing-search-input").value = "";
-                });
         }
+    });
 
-
-        newMap.addControl(new NameAndRadiusControl());
-
-        L.control.layers(baseMaps).addTo(newMap);
-
-        newMap.on('click', function (e) {
-            updateLocation(e.latlng.lat, e.latlng.lng);
-        });
-
-        function updateLocation(lat, lng) {
-            drawCircle(lat, lng);
+    document.getElementById("bing-search-btn").addEventListener("click", function () {
+        var query = document.getElementById("bing-search-input").value;
+        if (query) {
+            searchWithBing(query);
         }
+    });
 
-        function drawCircle(lat, lng) {
-            var radius = parseInt(document.getElementById("radius").value) || 50;
+    function searchWithBing(query) {
+        var bingApiKey = "AmJRUjOCG5j36N82oZ3DYn-ebd3Tmzu9xrEikCDYmL735i8j6EeyfdHsVA8CEjPq";
+        var url = `https://dev.virtualearth.net/REST/v1/Locations?q=${encodeURIComponent(query)}&key=${bingApiKey}`;
 
-            if (circle && circle.options.color === 'blue') {
-                newMap.removeLayer(circle);
-            }
-            if (marker) newMap.removeLayer(marker);
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.resourceSets.length > 0 && data.resourceSets[0].resources.length > 0) {
+                    var location = data.resourceSets[0].resources[0].point.coordinates;
+                    updateLocation(location[0], location[1]);
+                    newMap.setView([location[0], location[1]], 17);
+                } else {
+                    alert("Location not found. Try again.");
+                }
+                document.getElementById("bing-search-input").value = "";
+            })
+            .catch(error => {
+                console.error("Error with Bing Maps API:", error);
+                alert("Error fetching location. Please try again.");
+                document.getElementById("bing-search-input").value = "";
+            });
+    }
 
-            marker = L.marker([lat, lng]).addTo(newMap);
 
-            circle = L.circle([lat, lng], {
-                color: 'blue',
-                fillColor: 'blue',
-                fillOpacity: 0.2,
-                radius: radius
-            }).addTo(newMap);
+    newMap.addControl(new NameAndRadiusControl());
+
+    L.control.layers(baseMaps).addTo(newMap);
+
+    newMap.on('click', function (e) {
+        updateLocation(e.latlng.lat, e.latlng.lng);
+    });
+
+    function updateLocation(lat, lng) {
+        drawCircle(lat, lng);
+    }
+
+    function drawCircle(lat, lng) {
+        var radius = parseInt(document.getElementById("radius").value) || 50;
+
+        if (circle && circle.options.color === 'blue') {
+            newMap.removeLayer(circle);
         }
+        if (marker) newMap.removeLayer(marker);
 
-        function updateRadius(change) {
-            var radiusInput = document.getElementById("radius");
-            var newRadius = parseInt(radiusInput.value) + change;
-            if (newRadius > 0) {
-                radiusInput.value = newRadius;
-                var lat = marker.getLatLng().lat;
-                var lng = marker.getLatLng().lng;
-                drawCircle(lat, lng);
-            }
-        }
+        marker = L.marker([lat, lng]).addTo(newMap);
 
-        // Function for manual point plotting (used on click on map or plot button)
-        function plotPoint() {
-            if (!marker) {
-                alert("Please click on the map to place a marker first.");
-                return;
-            }
+        circle = L.circle([lat, lng], {
+            color: 'blue',
+            fillColor: 'blue',
+            fillOpacity: 0.2,
+            radius: radius
+        }).addTo(newMap);
+    }
 
+    function updateRadius(change) {
+        var radiusInput = document.getElementById("radius");
+        var newRadius = parseInt(radiusInput.value) + change;
+        if (newRadius > 0) {
+            radiusInput.value = newRadius;
             var lat = marker.getLatLng().lat;
             var lng = marker.getLatLng().lng;
-            var radius = parseInt(document.getElementById("radius").value) || 50;
-            var name = document.getElementById("name-input").value || "Unnamed Location";
-
-            var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
-            var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
-                return row.cells[0].textContent;
-            });
-
-            if (existingNames.includes(name)) {
-                alert("The name '" + name + "' already exists. Please choose a different name.");
-                return;
-            }
-
-            var row = table.insertRow();
-
-            var nameCell = row.insertCell(0);
-            var latCell = row.insertCell(1);
-            var lngCell = row.insertCell(2);
-            var radiusCell = row.insertCell(3);
-            var locationCell = row.insertCell(4);
-            var validationOrderCell = row.insertCell(5);
-            var actionCell = row.insertCell(6);
-
-            nameCell.textContent = name;
-            latCell.textContent = lat.toFixed(6);
-            lngCell.textContent = lng.toFixed(6);
-            radiusCell.textContent = radius;
-
-            var locationInput = document.createElement("input");
-            locationInput.type = "text";
-            locationInput.value = "";
-            locationCell.appendChild(locationInput);
-
-            var validationOrderInput = document.createElement("input");
-            validationOrderInput.type = "text";
-            validationOrderInput.value = "GPS, WIFI";
-            validationOrderCell.appendChild(validationOrderInput);
-
-            var deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-            deleteButton.classList.add("delete-btn");
-
-            var viewButton = document.createElement("button");
-            viewButton.textContent = "View";
-            viewButton.classList.add("view-btn");
-
-            actionCell.appendChild(viewButton);
-            actionCell.appendChild(deleteButton);
-            actionCell.classList.add("action-cell");
-
-            var plottedCircle = L.circle([lat, lng], {
-                color: 'green',
-                fillColor: 'green',
-                fillOpacity: 0.2,
-                radius: radius
-            }).addTo(newMap);
-
-            var circleId = plottedCircle._leaflet_id;
-
-            plottedCircle.bindTooltip(name, {
-                permanent: false,
-                direction: "top",
-                offset: [0, -10]
-            });
-
-            circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
-
-            deleteButton.onclick = function () {
-                var index = circlesOnMap.findIndex(function (item) {
-                    return item.id === circleId;
-                });
-
-                if (index !== -1) {
-                    var rowToDelete = circlesOnMap[index].row;
-                    rowToDelete.parentNode.removeChild(rowToDelete);
-                    newMap.removeLayer(circlesOnMap[index].circle);
-                    circlesOnMap.splice(index, 1);
-                }
-            };
-
-            viewButton.onclick = function () {
-                newMap.setView([lat, lng], 17);
-                document.getElementById("name-input").value = name;
-                document.getElementById("radius").value = radius;
-                updateLocation(lat, lng);
-                window.scrollTo(0, 0); // Scroll to the top of the page
-            };
-
-            showSearchBar();
+            drawCircle(lat, lng);
         }
-
-        // Function for automatic point plotting (used by upload button)
-        function plotPlaceOnMap(name, lat, lng, radius, locationPath = "", validationOrder = "GPS, WIFI") {
-            var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
-            var row = table.insertRow();
-
-            var nameCell = row.insertCell(0);
-            var latCell = row.insertCell(1);
-            var lngCell = row.insertCell(2);
-            var radiusCell = row.insertCell(3);
-            var locationCell = row.insertCell(4);
-            var validationOrderCell = row.insertCell(5);
-            var actionCell = row.insertCell(6);
-
-            nameCell.textContent = name;
-            latCell.textContent = lat.toFixed(6);
-            lngCell.textContent = lng.toFixed(6);
-            radiusCell.textContent = radius;
-
-            var locationInput = document.createElement("input");
-            locationInput.type = "text";
-            locationInput.value = locationPath;
-            locationCell.appendChild(locationInput);
-
-            var validationOrderInput = document.createElement("input");
-            validationOrderInput.type = "text";
-            validationOrderInput.value = validationOrder;
-            validationOrderCell.appendChild(validationOrderInput);
-
-            var deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-            deleteButton.classList.add("delete-btn");
-
-            var viewButton = document.createElement("button");
-            viewButton.textContent = "View";
-            viewButton.classList.add("view-btn");
-
-            actionCell.appendChild(viewButton);
-            actionCell.appendChild(deleteButton);
-            actionCell.classList.add("action-cell");
-
-            var plottedCircle = L.circle([lat, lng], {
-                color: 'green',
-                fillColor: 'green',
-                fillOpacity: 0.2,
-                radius: radius
-            }).addTo(newMap);
-
-            var circleId = plottedCircle._leaflet_id;
-
-            plottedCircle.bindTooltip(name, {
-                permanent: false,
-                direction: "top",
-                offset: [0, -10]
-            });
-
-            circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
-
-            deleteButton.onclick = function () {
-                var index = circlesOnMap.findIndex(function (item) {
-                    return item.id === circleId;
-                });
-
-                if (index !== -1) {
-                    var rowToDelete = circlesOnMap[index].row;
-                    rowToDelete.parentNode.removeChild(rowToDelete);
-                    newMap.removeLayer(circlesOnMap[index].circle);
-                    circlesOnMap.splice(index, 1);
-                }
-            };
-
-            viewButton.onclick = function () {
-                newMap.setView([lat, lng], 17);
-                document.getElementById("name-input").value = name;
-                document.getElementById("radius").value = radius;
-                updateLocation(lat, lng);
-                window.scrollTo(0, 0);
-            };
-        }
-
-        function triggerFileUpload() {
-            document.getElementById('fileUpload').click();
-        }
-
-        function processUploadedFile() {
-            const fileInput = document.getElementById('fileUpload');
-            const file = fileInput.files[0];
-
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const fileContent = e.target.result;
-                    if (file.name.endsWith('.json')) {
-                        processJsonFile(fileContent);
-                    } else if (file.name.endsWith('.csv')) {
-                        processCsvFile(fileContent);
-                    } else {
-                        alert('Unsupported file format. Please upload a .json or .csv file.');
-                    }
-                };
-                reader.readAsText(file);
-            } else {
-                alert('No file selected.');
-            }
-        }
-
-        function processJsonFile(fileContent) {
-    try {
-        const jsonData = JSON.parse(fileContent);
-        console.log("Parsed JSON data:", jsonData);
-
-        if (jsonData.itemsRetrieveResponses && jsonData.itemsRetrieveResponses.length > 0) {
-            jsonData.itemsRetrieveResponses.forEach(function (item) {
-                if (item.responseObjectNode && item.responseObjectNode.knownPlace) {
-                    const knownPlace = item.responseObjectNode.knownPlace;
-                    const name = knownPlace.name;
-                    const latitude = knownPlace.latitude;
-                    const longitude = knownPlace.longitude;
-                    const radius = knownPlace.radius;
-
-                    // Extract location paths
-                    const locations = knownPlace.locations || [];
-                    const locationPaths = locations.map(location => location.path).join(',');
-
-                    if (isDuplicateName(name)) {
-                        alert(`The name '${name}' already exists. Please choose a different name.`);
-                    } else {
-                        plotPlaceOnMap(name, latitude, longitude, radius, locationPaths);
-                    }
-                } else {
-                    console.error("Invalid item structure:", item);
-                }
-            });
-            showSearchBar();
-        } else {
-            console.error('Expected structure not found. Check the JSON format.');
-            alert('The JSON format is not as expected. Please check the file.');
-        }
-    } catch (error) {
-        console.error('Error parsing JSON:', error);
-        alert('There was an error reading the JSON file.');
     }
-}
 
-        function processCsvFile(fileContent) {
-            const lines = fileContent.split('\n');
-            const headers = lines[0].split(',');
+    // Function for manual point plotting (used on click on map or plot button)
+    function plotPoint() {
+        if (!marker) {
+            alert("Please click on the map to place a marker first.");
+            return;
+        }
 
-            const expectedHeaders = ["*Name", "*Latitude", "*Longitude", "*Radius", "*Location Path", "*Validation Order", "Description", "Accuracy", "Wi-Fi Networks"];
-            if (!expectedHeaders.every((header, index) => header === headers[index])) {
-                alert('Incorrectly formatted CSV. Please download the template from the link on the page.');
-                return;
+        var lat = marker.getLatLng().lat;
+        var lng = marker.getLatLng().lng;
+        var radius = parseInt(document.getElementById("radius").value) || 50;
+        var name = document.getElementById("name-input").value || "Unnamed Location";
+
+        var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+        var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
+            return row.cells[0].textContent;
+        });
+
+        if (existingNames.includes(name)) {
+            alert("The name '" + name + "' already exists. Please choose a different name.");
+            return;
+        }
+
+        var row = table.insertRow(0); // Insert at the top
+
+        var nameCell = row.insertCell(0);
+        var latCell = row.insertCell(1);
+        var lngCell = row.insertCell(2);
+        var radiusCell = row.insertCell(3);
+        var locationCell = row.insertCell(4);
+        var validationOrderCell = row.insertCell(5);
+        var actionCell = row.insertCell(6);
+
+        nameCell.textContent = name;
+        latCell.textContent = lat.toFixed(6);
+        lngCell.textContent = lng.toFixed(6);
+        radiusCell.textContent = radius;
+
+        var locationInput = document.createElement("input");
+        locationInput.type = "text";
+        locationInput.value = "";
+        locationCell.appendChild(locationInput);
+
+        var validationOrderInput = document.createElement("input");
+        validationOrderInput.type = "text";
+        validationOrderInput.value = "GPS,WIFI";
+        validationOrderCell.appendChild(validationOrderInput);
+
+        var deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.classList.add("delete-btn");
+
+        var viewButton = document.createElement("button");
+        viewButton.textContent = "View";
+        viewButton.classList.add("view-btn");
+
+        actionCell.appendChild(viewButton);
+        actionCell.appendChild(deleteButton);
+        actionCell.classList.add("action-cell");
+
+        var plottedCircle = L.circle([lat, lng], {
+            color: 'green',
+            fillColor: 'green',
+            fillOpacity: 0.2,
+            radius: radius
+        }).addTo(newMap);
+
+        var circleId = plottedCircle._leaflet_id;
+
+        plottedCircle.bindTooltip(name, {
+            permanent: false,
+            direction: "top",
+            offset: [0, -10]
+        });
+
+        circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
+
+        deleteButton.onclick = function () {
+            var index = circlesOnMap.findIndex(function (item) {
+                return item.id === circleId;
+            });
+
+            if (index !== -1) {
+                var rowToDelete = circlesOnMap[index].row;
+                rowToDelete.parentNode.removeChild(rowToDelete);
+                newMap.removeLayer(circlesOnMap[index].circle);
+                circlesOnMap.splice(index, 1);
             }
+        };
 
+        viewButton.onclick = function () {
+            newMap.setView([lat, lng], 17);
+            document.getElementById("name-input").value = name;
+            document.getElementById("radius").value = radius;
+            document.getElementById("location-input").value = locationInput.value;
+            document.getElementById("validation-order-input").value = validationOrderInput.value;
+            updateLocation(lat, lng);
+            window.scrollTo(0, 0);
+        };
+
+        showSearchBar();
+    }
+
+    // Function for automatic point plotting (used by upload button)
+    function plotPlaceOnMap(name, lat, lng, radius, locationPath = "", validationOrder = "GPS,WIFI") {
+        var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+        var row = table.insertRow(-1); // Insert at the end
+
+        var nameCell = row.insertCell(0);
+        var latCell = row.insertCell(1);
+        var lngCell = row.insertCell(2);
+        var radiusCell = row.insertCell(3);
+        var locationCell = row.insertCell(4);
+        var validationOrderCell = row.insertCell(5);
+        var actionCell = row.insertCell(6);
+
+        nameCell.textContent = name;
+        latCell.textContent = lat.toFixed(6);
+        lngCell.textContent = lng.toFixed(6);
+        radiusCell.textContent = radius;
+
+        var locationInput = document.createElement("input");
+        locationInput.type = "text";
+        locationInput.value = locationPath;
+        locationCell.appendChild(locationInput);
+
+        var validationOrderInput = document.createElement("input");
+        validationOrderInput.type = "text";
+        validationOrderInput.value = validationOrder;
+        validationOrderCell.appendChild(validationOrderInput);
+
+        var deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.classList.add("delete-btn");
+
+        var viewButton = document.createElement("button");
+        viewButton.textContent = "View";
+        viewButton.classList.add("view-btn");
+
+        actionCell.appendChild(viewButton);
+        actionCell.appendChild(deleteButton);
+        actionCell.classList.add("action-cell");
+
+        var plottedCircle = L.circle([lat, lng], {
+            color: 'green',
+            fillColor: 'green',
+            fillOpacity: 0.2,
+            radius: radius
+        }).addTo(newMap);
+
+        var circleId = plottedCircle._leaflet_id;
+
+        plottedCircle.bindTooltip(name, {
+            permanent: false,
+            direction: "top",
+            offset: [0, -10]
+        });
+
+        circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
+
+        deleteButton.onclick = function () {
+            var index = circlesOnMap.findIndex(function (item) {
+                return item.id === circleId;
+            });
+
+            if (index !== -1) {
+                var rowToDelete = circlesOnMap[index].row;
+                rowToDelete.parentNode.removeChild(rowToDelete);
+                newMap.removeLayer(circlesOnMap[index].circle);
+                circlesOnMap.splice(index, 1);
+            }
+        };
+
+        viewButton.onclick = function () {
+            newMap.setView([lat, lng], 17);
+            document.getElementById("name-input").value = name;
+            document.getElementById("radius").value = radius;
+            updateLocation(lat, lng);
+            window.scrollTo(0, 0);
+        };
+    }
+
+    function triggerFileUpload() {
+        document.getElementById('fileUpload').click();
+    }
+
+    function processUploadedFile() {
+        const fileInput = document.getElementById('fileUpload');
+        const file = fileInput.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const fileContent = e.target.result;
+                if (file.name.endsWith('.json')) {
+                    processJsonFile(fileContent);
+                } else if (file.name.endsWith('.csv')) {
+                    processCsvFile(fileContent);
+                } else {
+                    alert('Unsupported file format. Please upload a .json or .csv file.');
+                }
+            };
+            reader.readAsText(file);
+        } else {
+            alert('No file selected.');
+        }
+    }
+
+    function processJsonFile(fileContent) {
+        try {
+            const jsonData = JSON.parse(fileContent);
+            console.log("Parsed JSON data:", jsonData);
+
+            if (jsonData.itemsRetrieveResponses && jsonData.itemsRetrieveResponses.length > 0) {
+                let duplicateFound = false;
+
+                jsonData.itemsRetrieveResponses.forEach(function (item) {
+                    if (item.responseObjectNode && item.responseObjectNode.knownPlace) {
+                        const knownPlace = item.responseObjectNode.knownPlace;
+                        const name = knownPlace.name;
+
+                        if (isDuplicateName(name)) {
+                            duplicateFound = true;
+                        }
+                    } else {
+                        console.error("Invalid item structure:", item);
+                    }
+                });
+
+                if (duplicateFound) {
+                    alert('A location with the same name already exists. Please check the file before uploading.');
+                } else {
+                    jsonData.itemsRetrieveResponses.forEach(function (item) {
+                        if (item.responseObjectNode && item.responseObjectNode.knownPlace) {
+                            const knownPlace = item.responseObjectNode.knownPlace;
+                            const name = knownPlace.name;
+                            const latitude = knownPlace.latitude;
+                            const longitude = knownPlace.longitude;
+                            const radius = knownPlace.radius;
+
+                            // Extract location paths
+                            const locations = knownPlace.locations || [];
+                            const locationPaths = locations.map(location => location.path).join(',');
+
+                            plotPlaceOnMap(name, latitude, longitude, radius, locationPaths);
+                        }
+                    });
+                    showSearchBar();
+                }
+            } else {
+                console.error('Expected structure not found. Check the JSON format.');
+                alert('The JSON format is not as expected. Please check the file.');
+            }
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+            alert('There was an error reading the JSON file.');
+        }
+        finally {
+            resetFileInput();
+        }
+    }
+
+    function processCsvFile(fileContent) {
+        const lines = fileContent.split('\n');
+        const headers = lines[0].split(',');
+
+        const expectedHeaders = ["*Name", "*Latitude", "*Longitude", "*Radius", "*Location Path", "*Validation Order", "Description", "Accuracy", "Wi-Fi Networks"];
+        if (!expectedHeaders.every((header, index) => header === headers[index])) {
+            alert('Incorrectly formatted CSV. Please download the template from the link on the page.');
+            return;
+        }
+
+        let duplicateFound = false;
+
+        for (let i = 1; i < lines.length; i++) {
+            const cells = parseCsvLine(lines[i]);
+            if (cells.length >= 6) {
+                const name = cells[0];
+
+                if (isDuplicateName(name)) {
+                    duplicateFound = true;
+                    break;
+                }
+            }
+        }
+
+        if (duplicateFound) {
+            alert('A location with the same name already exists. Please check the file before uploading.');
+        } else {
             for (let i = 1; i < lines.length; i++) {
                 const cells = parseCsvLine(lines[i]);
                 if (cells.length >= 6) {
@@ -811,117 +1064,143 @@
                     const latitude = parseFloat(cells[1]);
                     const longitude = parseFloat(cells[2]);
                     const radius = parseInt(cells[3]);
-                    const locationPath = cells[4].replace(/"/g, ''); // Remove double quotes
-                    const validationOrder = cells[5].replace(/"/g, ''); // Remove double quotes
+                    const locationPath = cells[4].replace(/"/g, '');
+                    const validationOrder = cells[5].replace(/"/g, '');
 
-                    if (isDuplicateName(name)) {
-                        alert(`The name '${name}' already exists. Please choose a different name.`);
-                    } else {
-                        plotPlaceOnMap(name, latitude, longitude, radius, locationPath, validationOrder);
-                    }
+                    plotPlaceOnMap(name, latitude, longitude, radius, locationPath, validationOrder);
                 }
             }
         }
+        resetFileInput();
+    }
 
-        function parseCsvLine(line) {
-            const result = [];
-            let inQuotes = false;
-            let value = '';
+    function isDuplicateName(name) {
+        var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+        var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
+            return row.cells[0].textContent;
+        });
+        return existingNames.includes(name);
+    }
 
-            for (let char of line) {
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    result.push(value);
-                    value = '';
-                } else {
-                    value += char;
-                }
+    function parseCsvLine(line) {
+        const result = [];
+        let inQuotes = false;
+        let value = '';
+
+        for (let char of line) {
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(value);
+                value = '';
+            } else {
+                value += char;
             }
-            result.push(value);
-            return result;
+        }
+        result.push(value);
+        return result;
+    }
+
+    function downloadCSV() {
+        var table = document.getElementById("locationTable");
+        var rows = table.getElementsByTagName("tr");
+        var csvContent = "data:text/csv;charset=utf-8,";
+
+        // Add header row
+        csvContent += "*Name,*Latitude,*Longitude,*Radius,*Location Path,*Validation Order,Description,Accuracy,Wi-Fi Networks\n";
+
+        // Add data rows
+        for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+            var cells = rows[i].getElementsByTagName("td");
+            var row = [
+                cells[0].textContent, // Name
+                cells[1].textContent, // Latitude
+                cells[2].textContent, // Longitude
+                cells[3].textContent, // Radius
+                `"${cells[4].getElementsByTagName("input")[0].value}"`, // Location Path
+                `"${cells[5].getElementsByTagName("input")[0].value}"`, // Validation Order
+                "", // Description (empty)
+                "", // Accuracy (empty)
+                ""  // Wi-Fi Networks (empty)
+            ].join(",");
+            csvContent += row + "\n";
         }
 
-        function isDuplicateName(name) {
-            var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
-            var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
-                return row.cells[0].textContent;
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "KnownPlaces.csv");
+        document.body.appendChild(link); // Required for FF
+
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    var isClearingTable = false;
+
+    function clearTable() {
+        if (confirm("Are you sure you want to clear the table? ALL DATA WILL BE LOST")) {
+            isClearingTable = true; // Set the flag to true
+            var tableBody = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+            circlesOnMap.forEach(function (item) {
+                newMap.removeLayer(item.circle);
             });
-            return existingNames.includes(name);
+            circlesOnMap = [];
+            location.reload();
         }
+    }
 
-        function downloadCSV() {
-            var table = document.getElementById("locationTable");
-            var rows = table.getElementsByTagName("tr");
-            var csvContent = "data:text/csv;charset=utf-8,";
+    function filterTable() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("locationTable");
+        tr = table.getElementsByTagName("tr");
 
-            // Add header row
-            csvContent += "*Name,*Latitude,*Longitude,*Radius,*Location Path,*Validation Order,Description,Accuracy,Wi-Fi Networks\n";
-
-            // Add data rows
-            for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
-                var cells = rows[i].getElementsByTagName("td");
-                var row = [
-                    cells[0].textContent, // Name
-                    cells[1].textContent, // Latitude
-                    cells[2].textContent, // Longitude
-                    cells[3].textContent, // Radius
-                    `"${cells[4].getElementsByTagName("input")[0].value}"`, // Location Path
-                    `"${cells[5].getElementsByTagName("input")[0].value}"`, // Validation Order
-                    "", // Description (empty)
-                    "", // Accuracy (empty)
-                    ""  // Wi-Fi Networks (empty)
-                ].join(",");
-                csvContent += row + "\n";
-            }
-
-            var encodedUri = encodeURI(csvContent);
-            var link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "KnownPlaces.csv");
-            document.body.appendChild(link); // Required for FF
-
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function clearTable() {
-            if (confirm("Are you sure you want to clear the table? ALL DATA WILL BE LOST")) {
-                var tableBody = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
-                tableBody.innerHTML = '';
-                circlesOnMap.forEach(function (item) {
-                    newMap.removeLayer(item.circle);
-                });
-                circlesOnMap = [];
-                location.reload();
-            }
-        }
-
-        function filterTable() {
-            var input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("searchInput");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("locationTable");
-            tr = table.getElementsByTagName("tr");
-
-            for (i = 1; i < tr.length; i++) { // Start from 1 to skip the header row
-                td = tr[i].getElementsByTagName("td")[0]; // Get the "Name" column
-                if (td) {
-                    txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
+        for (i = 1; i < tr.length; i++) { // Start from 1 to skip the header row
+            td = tr[i].getElementsByTagName("td")[0]; // Get the "Name" column
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
                 }
             }
         }
+    }
 
-        function showSearchBar() {
-            document.getElementById('search-container').style.display = 'flex';
+    function showSearchBar() {
+        document.getElementById('search-container').style.display = 'flex';
+    }
+
+    function resetFileInput() {
+        document.getElementById('fileUpload').value = '';
+    }
+
+    window.addEventListener('beforeunload', function (e) {
+        if (!isClearingTable) {
+            var confirmationMessage = 'Are you sure you want to leave? All unsaved changes will be lost.';
+            e.returnValue = confirmationMessage; 
+            return confirmationMessage;
         }
+    });
 
-    </script>
+    document.getElementById('help-link').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('help-content').style.display = 'block';
+        document.getElementById('help-link').style.display = 'none';
+    });
+
+    document.getElementById('back-button').addEventListener('click', function () {
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('help-content').style.display = 'none';
+        document.getElementById('help-link').style.display = 'block';
+    });
+
+</script>
 </body>
 
 </html>
