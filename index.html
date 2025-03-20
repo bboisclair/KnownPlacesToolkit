@@ -276,26 +276,6 @@
             background-color: #218838;
         }
 
-        #plot-point {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            padding: 8px 16px;
-            font-size: 16px;
-            border-radius: 25px;
-            background-color: #0A66C2;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            text-align: center;
-            width: auto;
-        }
-
-        #plot-point:hover {
-            background-color: #084d92;
-        }
-
         #name-input {
             width: 200px;
             margin-top: 5px;
@@ -311,7 +291,8 @@
         #upload-btn,
         #download-btn,
         #clear-table-btn,
-        #clear-search-btn {
+        #clear-search-btn,
+        #plot-point {
             background-color: #0A66C2;
             color: white;
             font-size: 14px;
@@ -329,10 +310,31 @@
             align-items: center;
         }
 
+        #help-content button{
+            background-color: #0A66C2;
+            color: white;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+            width: auto;
+            min-width: 80px;
+            text-align: center;
+            white-space: nowrap;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+        }
+
         #upload-btn:hover,
         #download-btn:hover,
-        #clear-table-btn:hover
-        #clear-search-btn:hover {
+        #clear-table-btn:hover,
+        #clear-search-btn:hover,
+        #plot-point:hover,
+        #help-content button:hover {
             background-color: #084d92;
         }
 
@@ -395,28 +397,9 @@
 
         #help-content {
             display: none;
+            margin-bottom: 30px;
         }
 
-        #help-content button {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            padding: 8px 16px;
-            font-size: 16px;
-            border-radius: 25px;
-            background-color: #0A66C2;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            text-align: center;
-            width: auto;
-            margin-bottom: 20px;
-        }
-
-        #help-content button:hover {
-            background-color: #084d92;
-        }
 
         #help-content body {
             background-color: #005151;
@@ -446,6 +429,8 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             text-align: left;
+            padding-top: 10px;
+            padding-bottom: 10px;
         }
 
         #help-content ul {
@@ -481,6 +466,24 @@
             align-items: center;
             width: 100%;
             margin-top: 20px;
+        }
+
+        #help-link {
+            background-color: #0A66C2;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        #help-link:hover {
+            background-color: #084d92;
         }
     </style>
 </head>
