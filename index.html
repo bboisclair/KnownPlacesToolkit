@@ -90,6 +90,7 @@
             cursor: pointer;
             transition: background-color 0.3s;
             text-align: center;
+            width: auto;
         }
 
         #plot-point:hover {
@@ -142,7 +143,6 @@
             background-color: #084d92;
         }
 
-
         input,
         button {
             max-width: 300px;
@@ -179,6 +179,8 @@
             padding: 8px;
             text-align: center;
             border: 1px solid #ddd;
+            vertical-align: middle;
+            word-wrap: break-word;
         }
 
         th {
@@ -189,13 +191,42 @@
             background-color: #444;
         }
 
+        th.action-cell {
+            background-color: #333;
+            text-align: center;
+            vertical-align: middle;
+            height: 100%;
+            min-width: 160px;
+            white-space: normal;
+        }
+
         td.action-cell {
-            display: flex;
-            justify-content: center;
-            align-items: center;
             background-color: #444;
             text-align: center;
             vertical-align: middle;
+            height: 100%;
+            min-width: 160px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .action-cell div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        td input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 5px;
+            font-size: 14px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            background-color: white;
+            color: black;
         }
 
         .delete-btn {
@@ -214,8 +245,29 @@
             height: 30px;
         }
 
+        .view-btn {
+            background-color: #28a745;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 14px;
+            width: auto;
+            min-width: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 30px;
+            margin-left: 5px;
+        }
+
         .delete-btn:hover {
             background-color: darkred;
+        }
+
+        .view-btn:hover {
+            background-color: #218838;
         }
 
         #plot-point {
@@ -251,7 +303,8 @@
         }
 
         #upload-btn,
-        #download-btn {
+        #download-btn,
+        #clear-table-btn {
             background-color: #0A66C2;
             color: white;
             font-size: 14px;
@@ -270,8 +323,34 @@
         }
 
         #upload-btn:hover,
-        #download-btn:hover {
+        #download-btn:hover,
+        #clear-table-btn:hover {
             background-color: #084d92;
+        }
+
+        .search-container {
+            display: none;
+            justify-content: flex-start;
+            align-items: center;
+            width: 80%;
+            margin-top: 20px;
+        }
+
+        #searchInput {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+            outline: none;
+            box-sizing: border-box;
+            width: 300px;
+        }
+
+        #searchInput:focus {
+            border-color: #0A66C2;
+            box-shadow: 0 0 5px rgba(10, 102, 194, 0.5);
         }
     </style>
 </head>
@@ -283,12 +362,17 @@
 
     <div class="button-container">
         <button id="upload-btn" onclick="triggerFileUpload()">Upload</button>
-        <button id="download-btn">Download</button>
+        <button id="download-btn" onclick="downloadCSV()">Download</button>
+        <button id="clear-table-btn" onclick="clearTable()">Clear Table</button>
     </div>
 
     <div class="upload-container" style="display: none;">
-        <input type="file" id="fileUpload" accept=".json" onchange="processUploadedFile()">
+        <input type="file" id="fileUpload" accept=".json,.csv" onchange="processUploadedFile()">
         <input type="button" value="Process" onclick="processUploadedFile()" style="display: none;">
+    </div>
+
+    <div class="search-container" id="search-container">
+        <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
     </div>
 
     <table id="locationTable">
@@ -298,7 +382,9 @@
                 <th>Latitude</th>
                 <th>Longitude</th>
                 <th>Radius</th>
-                <th>Action</th>
+                <th>Location</th>
+                <th>Validation Order</th>
+                <th class="action-cell">Action</th>
             </tr>
         </thead>
         <tbody>
@@ -467,106 +553,50 @@
 
         // Function for manual point plotting (used on click on map or plot button)
         function plotPoint() {
-    if (!marker) {
-        alert("Please click on the map to place a marker first.");
-        return;
-    }
+            if (!marker) {
+                alert("Please click on the map to place a marker first.");
+                return;
+            }
 
-    var lat = marker.getLatLng().lat;
-    var lng = marker.getLatLng().lng;
-    var radius = parseInt(document.getElementById("radius").value) || 50;
-    var name = document.getElementById("name-input").value || "Unnamed Location";
+            var lat = marker.getLatLng().lat;
+            var lng = marker.getLatLng().lng;
+            var radius = parseInt(document.getElementById("radius").value) || 50;
+            var name = document.getElementById("name-input").value || "Unnamed Location";
 
-    var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
-    var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
-        return row.cells[0].textContent;
-    });
-
-    if (existingNames.includes(name)) {
-        alert("The name '" + name + "' already exists. Please choose a different name.");
-        return;
-    }
-
-    var row = table.insertRow();
-
-    var nameCell = row.insertCell(0);
-    var latCell = row.insertCell(1);
-    var lngCell = row.insertCell(2);
-    var radiusCell = row.insertCell(3);
-    var actionCell = row.insertCell(4);
-
-    nameCell.textContent = name;
-    latCell.textContent = lat.toFixed(6);
-    lngCell.textContent = lng.toFixed(6);
-    radiusCell.textContent = radius;
-
-    var deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-    deleteButton.classList.add("delete-btn");
-
-    var viewButton = document.createElement("button");
-    viewButton.textContent = "View";
-    viewButton.classList.add("delete-btn");
-    viewButton.style.backgroundColor = "#28a745";
-    viewButton.style.marginLeft = "5px";
-
-    actionCell.appendChild(viewButton);
-    actionCell.appendChild(deleteButton);
-    actionCell.classList.add("action-cell");
-
-    var plottedCircle = L.circle([lat, lng], {
-        color: 'green',
-        fillColor: 'green',
-        fillOpacity: 0.2,
-        radius: radius
-    }).addTo(newMap);
-
-    var circleId = plottedCircle._leaflet_id;
-
-    plottedCircle.bindTooltip(name, {
-        permanent: false,
-        direction: "top",
-        offset: [0, -10]
-    });
-
-    circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
-
-    deleteButton.onclick = function () {
-        var index = circlesOnMap.findIndex(function (item) {
-            return item.id === circleId;
-        });
-
-        if (index !== -1) {
-            var rowToDelete = circlesOnMap[index].row;
-            rowToDelete.parentNode.removeChild(rowToDelete);
-            newMap.removeLayer(circlesOnMap[index].circle);
-            circlesOnMap.splice(index, 1);
-        }
-    };
-
-    viewButton.onclick = function () {
-        newMap.setView([lat, lng], 17);
-        document.getElementById("name-input").value = name;
-        document.getElementById("radius").value = radius;
-        updateLocation(lat, lng);
-    };
-}
-
-        // Function for automatic point plotting (used by upload button)
-        function plotPlaceOnMap(name, lat, lng, radius) {
             var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+            var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
+                return row.cells[0].textContent;
+            });
+
+            if (existingNames.includes(name)) {
+                alert("The name '" + name + "' already exists. Please choose a different name.");
+                return;
+            }
+
             var row = table.insertRow();
 
             var nameCell = row.insertCell(0);
             var latCell = row.insertCell(1);
             var lngCell = row.insertCell(2);
             var radiusCell = row.insertCell(3);
-            var actionCell = row.insertCell(4);
+            var locationCell = row.insertCell(4);
+            var validationOrderCell = row.insertCell(5);
+            var actionCell = row.insertCell(6);
 
             nameCell.textContent = name;
             latCell.textContent = lat.toFixed(6);
             lngCell.textContent = lng.toFixed(6);
             radiusCell.textContent = radius;
+
+            var locationInput = document.createElement("input");
+            locationInput.type = "text";
+            locationInput.value = "";
+            locationCell.appendChild(locationInput);
+
+            var validationOrderInput = document.createElement("input");
+            validationOrderInput.type = "text";
+            validationOrderInput.value = "GPS, WIFI";
+            validationOrderCell.appendChild(validationOrderInput);
 
             var deleteButton = document.createElement("button");
             deleteButton.textContent = "Delete";
@@ -574,9 +604,7 @@
 
             var viewButton = document.createElement("button");
             viewButton.textContent = "View";
-            viewButton.classList.add("delete-btn");
-            viewButton.style.backgroundColor = "#28a745";
-            viewButton.style.marginLeft = "5px";
+            viewButton.classList.add("view-btn");
 
             actionCell.appendChild(viewButton);
             actionCell.appendChild(deleteButton);
@@ -617,6 +645,88 @@
                 document.getElementById("name-input").value = name;
                 document.getElementById("radius").value = radius;
                 updateLocation(lat, lng);
+                window.scrollTo(0, 0); // Scroll to the top of the page
+            };
+
+            showSearchBar();
+        }
+
+        // Function for automatic point plotting (used by upload button)
+        function plotPlaceOnMap(name, lat, lng, radius, locationPath = "", validationOrder = "GPS, WIFI") {
+            var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+            var row = table.insertRow();
+
+            var nameCell = row.insertCell(0);
+            var latCell = row.insertCell(1);
+            var lngCell = row.insertCell(2);
+            var radiusCell = row.insertCell(3);
+            var locationCell = row.insertCell(4);
+            var validationOrderCell = row.insertCell(5);
+            var actionCell = row.insertCell(6);
+
+            nameCell.textContent = name;
+            latCell.textContent = lat.toFixed(6);
+            lngCell.textContent = lng.toFixed(6);
+            radiusCell.textContent = radius;
+
+            var locationInput = document.createElement("input");
+            locationInput.type = "text";
+            locationInput.value = locationPath;
+            locationCell.appendChild(locationInput);
+
+            var validationOrderInput = document.createElement("input");
+            validationOrderInput.type = "text";
+            validationOrderInput.value = validationOrder;
+            validationOrderCell.appendChild(validationOrderInput);
+
+            var deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.classList.add("delete-btn");
+
+            var viewButton = document.createElement("button");
+            viewButton.textContent = "View";
+            viewButton.classList.add("view-btn");
+
+            actionCell.appendChild(viewButton);
+            actionCell.appendChild(deleteButton);
+            actionCell.classList.add("action-cell");
+
+            var plottedCircle = L.circle([lat, lng], {
+                color: 'green',
+                fillColor: 'green',
+                fillOpacity: 0.2,
+                radius: radius
+            }).addTo(newMap);
+
+            var circleId = plottedCircle._leaflet_id;
+
+            plottedCircle.bindTooltip(name, {
+                permanent: false,
+                direction: "top",
+                offset: [0, -10]
+            });
+
+            circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
+
+            deleteButton.onclick = function () {
+                var index = circlesOnMap.findIndex(function (item) {
+                    return item.id === circleId;
+                });
+
+                if (index !== -1) {
+                    var rowToDelete = circlesOnMap[index].row;
+                    rowToDelete.parentNode.removeChild(rowToDelete);
+                    newMap.removeLayer(circlesOnMap[index].circle);
+                    circlesOnMap.splice(index, 1);
+                }
+            };
+
+            viewButton.onclick = function () {
+                newMap.setView([lat, lng], 17);
+                document.getElementById("name-input").value = name;
+                document.getElementById("radius").value = radius;
+                updateLocation(lat, lng);
+                window.scrollTo(0, 0);
             };
         }
 
@@ -632,37 +742,183 @@
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const fileContent = e.target.result;
-                    try {
-                        const jsonData = JSON.parse(fileContent);
-
-                        console.log(jsonData);
-
-                        if (jsonData.itemsRetrieveResponses && jsonData.itemsRetrieveResponses.length > 0) {
-                            jsonData.itemsRetrieveResponses.forEach(function (item) {
-
-                                if (item.responseObjectNode && item.responseObjectNode.knownPlace) {
-                                    const knownPlace = item.responseObjectNode.knownPlace;
-                                    const name = knownPlace.name;
-                                    const latitude = knownPlace.latitude;
-                                    const longitude = knownPlace.longitude;
-                                    const radius = knownPlace.radius;
-
-                                    plotPlaceOnMap(name, latitude, longitude, radius);
-                                }
-                            });
-                        } else {
-                            console.error('Expected structure not found. Check the JSON format.');
-                            alert('The JSON format is not as expected. Please check the file.');
-                        }
-                    } catch (error) {
-                        console.error('Error parsing JSON:', error);
-                        alert('There was an error reading the JSON file.');
+                    if (file.name.endsWith('.json')) {
+                        processJsonFile(fileContent);
+                    } else if (file.name.endsWith('.csv')) {
+                        processCsvFile(fileContent);
+                    } else {
+                        alert('Unsupported file format. Please upload a .json or .csv file.');
                     }
                 };
                 reader.readAsText(file);
             } else {
                 alert('No file selected.');
             }
+        }
+
+        function processJsonFile(fileContent) {
+    try {
+        const jsonData = JSON.parse(fileContent);
+        console.log("Parsed JSON data:", jsonData);
+
+        if (jsonData.itemsRetrieveResponses && jsonData.itemsRetrieveResponses.length > 0) {
+            jsonData.itemsRetrieveResponses.forEach(function (item) {
+                if (item.responseObjectNode && item.responseObjectNode.knownPlace) {
+                    const knownPlace = item.responseObjectNode.knownPlace;
+                    const name = knownPlace.name;
+                    const latitude = knownPlace.latitude;
+                    const longitude = knownPlace.longitude;
+                    const radius = knownPlace.radius;
+
+                    // Extract location paths
+                    const locations = knownPlace.locations || [];
+                    const locationPaths = locations.map(location => location.path).join(',');
+
+                    if (isDuplicateName(name)) {
+                        alert(`The name '${name}' already exists. Please choose a different name.`);
+                    } else {
+                        plotPlaceOnMap(name, latitude, longitude, radius, locationPaths);
+                    }
+                } else {
+                    console.error("Invalid item structure:", item);
+                }
+            });
+            showSearchBar();
+        } else {
+            console.error('Expected structure not found. Check the JSON format.');
+            alert('The JSON format is not as expected. Please check the file.');
+        }
+    } catch (error) {
+        console.error('Error parsing JSON:', error);
+        alert('There was an error reading the JSON file.');
+    }
+}
+
+        function processCsvFile(fileContent) {
+            const lines = fileContent.split('\n');
+            const headers = lines[0].split(',');
+
+            const expectedHeaders = ["*Name", "*Latitude", "*Longitude", "*Radius", "*Location Path", "*Validation Order", "Description", "Accuracy", "Wi-Fi Networks"];
+            if (!expectedHeaders.every((header, index) => header === headers[index])) {
+                alert('Incorrectly formatted CSV. Please download the template from the link on the page.');
+                return;
+            }
+
+            for (let i = 1; i < lines.length; i++) {
+                const cells = parseCsvLine(lines[i]);
+                if (cells.length >= 6) {
+                    const name = cells[0];
+                    const latitude = parseFloat(cells[1]);
+                    const longitude = parseFloat(cells[2]);
+                    const radius = parseInt(cells[3]);
+                    const locationPath = cells[4].replace(/"/g, ''); // Remove double quotes
+                    const validationOrder = cells[5].replace(/"/g, ''); // Remove double quotes
+
+                    if (isDuplicateName(name)) {
+                        alert(`The name '${name}' already exists. Please choose a different name.`);
+                    } else {
+                        plotPlaceOnMap(name, latitude, longitude, radius, locationPath, validationOrder);
+                    }
+                }
+            }
+        }
+
+        function parseCsvLine(line) {
+            const result = [];
+            let inQuotes = false;
+            let value = '';
+
+            for (let char of line) {
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(value);
+                    value = '';
+                } else {
+                    value += char;
+                }
+            }
+            result.push(value);
+            return result;
+        }
+
+        function isDuplicateName(name) {
+            var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+            var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
+                return row.cells[0].textContent;
+            });
+            return existingNames.includes(name);
+        }
+
+        function downloadCSV() {
+            var table = document.getElementById("locationTable");
+            var rows = table.getElementsByTagName("tr");
+            var csvContent = "data:text/csv;charset=utf-8,";
+
+            // Add header row
+            csvContent += "*Name,*Latitude,*Longitude,*Radius,*Location Path,*Validation Order,Description,Accuracy,Wi-Fi Networks\n";
+
+            // Add data rows
+            for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+                var cells = rows[i].getElementsByTagName("td");
+                var row = [
+                    cells[0].textContent, // Name
+                    cells[1].textContent, // Latitude
+                    cells[2].textContent, // Longitude
+                    cells[3].textContent, // Radius
+                    `"${cells[4].getElementsByTagName("input")[0].value}"`, // Location Path
+                    `"${cells[5].getElementsByTagName("input")[0].value}"`, // Validation Order
+                    "", // Description (empty)
+                    "", // Accuracy (empty)
+                    ""  // Wi-Fi Networks (empty)
+                ].join(",");
+                csvContent += row + "\n";
+            }
+
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "KnownPlaces.csv");
+            document.body.appendChild(link); // Required for FF
+
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function clearTable() {
+            if (confirm("Are you sure you want to clear the table? ALL DATA WILL BE LOST")) {
+                var tableBody = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';
+                circlesOnMap.forEach(function (item) {
+                    newMap.removeLayer(item.circle);
+                });
+                circlesOnMap = [];
+                location.reload();
+            }
+        }
+
+        function filterTable() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("locationTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 1; i < tr.length; i++) { // Start from 1 to skip the header row
+                td = tr[i].getElementsByTagName("td")[0]; // Get the "Name" column
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function showSearchBar() {
+            document.getElementById('search-container').style.display = 'flex';
         }
 
     </script>
