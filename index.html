@@ -37,6 +37,8 @@
             flex-direction: column;
             gap: 10px;
             width: 260px;
+            padding-top: 5px;
+            padding-bottom: 5px;
         }
 
         .leaflet-control.custom-name-radius-control input[type="text"],
@@ -436,6 +438,7 @@
         #help-content ul {
             list-style-type: none;
             padding: 0;
+            margin-left: 20px;
         }
 
         #help-content ul li {
@@ -515,11 +518,13 @@
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Description</th>
                         <th>Latitude</th>
                         <th>Longitude</th>
                         <th>Radius</th>
                         <th>Location</th>
                         <th>Validation Order</th>
+                        <th>WiFi Networks</th>
                         <th class="action-cell">Action</th>
                     </tr>
                 </thead>
@@ -534,49 +539,70 @@
         <div class="container">
             <h1>Known Places Toolkit Help Documentation</h1>
             <h2>Overview</h2>
-            <p>The Known Places Toolkit is a web-based application that allows users to plot and manage known places
-                on a map. Users can add, view, and delete locations, as well as upload and download location data in
-                JSON or CSV format.</p>
+            <p>The Known Places Toolkit is a web-based tool that allows users to plot and manage known places on a map.
+                Users can add, view, and delete locations, as well as upload and download location data in JSON or CSV
+                format.</p>
+            <p>The downloaded files will be in a format that is usable for the import into Pro WFM via the Data Import
+                Tool.</p>
 
             <h2>Features</h2>
             <ul>
-                <li><strong>Map Display:</strong> Interactive map with Google Satellite and OpenStreetMap layers.
-                </li>
+                <li><strong>Map Display:</strong> Interactive map with Google Satellite and OpenStreetMap layers which
+                    supports zooming and panning.</li>
                 <li><strong>Add Locations:</strong> Plot points on the map with custom names, radius, locations, and
                     validation orders.</li>
-                <li><strong>Upload/Download Data:</strong> Upload location data from JSON or CSV files and download
-                    the current data as a CSV file.</li>
+                <li><strong>Upload/Download Data:</strong> Upload location data from JSON or CSV files and download the
+                    current data as a CSV file.</li>
                 <li><strong>Search:</strong> Search for locations by name.</li>
                 <li><strong>Clear Table:</strong> Clear all locations from the table and map.</li>
             </ul>
 
             <h2>How to Use</h2>
             <h3>Adding Locations</h3>
+            <p>To add a Known Place you can either use the Search function or Manual Plot function.</p>
+            <h4>Search Address:</h4>
+            <ul>
+                <li>Enter the address including Street Number, Street Name, Suburb, State and Postcode or enter the
+                    latitude,longitude</li>
+                <li>Click the Search Address button or press Enter.</li>
+                <li>Fill in the fields within the control panel.</li>
+                <li>Adjust the radius as necessary</li>
+                <li>Click the "Add Known Place" button to add the location to the map and table.</li>
+            </ul>
             <h4>Manual Plotting:</h4>
             <ul>
-                <li>Click on the map to place a marker.</li>
-                <li>Fill in the "Name", "Radius", "Location", and "Validation Order" fields in the control panel.
-                </li>
-                <li>Click the "Plot Point" button to add the location to the map and table.</li>
+                <li>Click on the map to place a marker. NOTE: You can click around the map to move the marker and adjust the radius as necessary.</li>
+                <li>Fill in the fields within the control panel.</li>
+                <li>Click the "Add Known Place" button to add the location to the map and table.</li>
             </ul>
             <h4>Automatic Plotting:</h4>
             <ul>
-                <li>Click the "Upload" button to upload a JSON or CSV file containing location data.</li>
-                <li>The locations will be automatically plotted on the map and added to the table.</li>
+                <li>When you upload a data file, the locations will be automatically plotted on the map and added to the
+                    table.</li>
+            </ul>
+
+            <h3>Searching for Locations</h3>
+            <ul>
+                <li>Enter a Name, or part of a Name in the search bar.</li>
+                <li>The table will filter to show only locations that match the search query.</li>
             </ul>
 
             <h3>Viewing and Deleting Locations</h3>
             <ul>
-                <li><strong>View:</strong> Click the "View" button next to a location in the table to center the map
-                    on that location.</li>
-                <li><strong>Delete:</strong> Click the "Delete" button next to a location in the table to remove it
-                    from the map and table.</li>
+                <li><strong>View:</strong> Click the "View" button next to a location in the table to center the map on
+                    that location.</li>
+                <li><strong>Delete:</strong> Click the "Delete" button next to a location in the table to remove it from
+                    the map and table.</li>
             </ul>
 
             <h3>Uploading Data</h3>
             <ul>
                 <li>Click the "Upload" button.</li>
                 <li>Select a JSON or CSV file from your computer.</li>
+                <li>The JSON file should be in the format that is received when downloading known places from SDM in the
+                    response.json file.</li>
+                <li>The CSV file should be in the format that matches the Data Import Tool template for Known Places
+                    import.</li>
                 <li>The locations from the file will be plotted on the map and added to the table.</li>
             </ul>
 
@@ -584,6 +610,7 @@
             <ul>
                 <li>Click the "Download" button.</li>
                 <li>A CSV file containing the current locations will be downloaded to your computer.</li>
+                <li>The CSV file will match the Data Import Tool template for Known Places Import.</li>
             </ul>
 
             <h3>Clearing the Table</h3>
@@ -593,23 +620,31 @@
                 <li>All locations will be removed from the map and table.</li>
             </ul>
 
-            <h3>Searching for Locations</h3>
-            <ul>
-                <li>Enter a name in the search bar.</li>
-                <li>The table will filter to show only locations that match the search query.</li>
-            </ul>
-
             <h2>Notes</h2>
             <ul>
-                <li>Ensure that the JSON or CSV file format matches the expected structure for successful uploads.
-                </li>
-                <li>The map supports zooming and panning for better navigation.</li>
+                <li>Ensure that the JSON or CSV file format matches the expected structure for successful uploads.</li>
             </ul>
-            <br>
-            <center>
-                <p>Disclaimer: This is not a supported product by UKG. There is no guarantee that this application
-                    will function as intended. Use at your own risk.</p>
-            </center>
+            <h3>CSV File Format</h3>
+            <ul>
+                <li>The CSV contains a header row</li>
+                <li>The mandatory columns in the file are:
+                    <ul>
+                        <li>Name, Latitude, Longitude, Radius, Location Path, Validation Order</li>
+                    </ul>
+                </li>
+                <li>The optional columns in the file are:
+                    <ul>
+                        <li>Description, Accuracy, Wi-Fi Networks</li>
+                    </ul>
+                </li>
+                <li>Location Path, Validation Order and Wi-Fi Networks fields contain comma separated list of values and
+                    is required to be in quotes.</li>
+            </ul>
+
+            <div class="disclaimer">
+                <p>Disclaimer: This is not a supported product by UKG. There is no guarantee that this application will
+                    function as intended. Use at your own risk.</p>
+            </div>
         </div>
 </body>
 
@@ -646,25 +681,33 @@
             // Name input field
             container.innerHTML = `
             <div>
-                    <label for="name-input">Name:</label>
-                    <input type="text" id="name-input" placeholder="Enter name" />
-                </div>
-                <div style="margin-top: 10px;">
-                    <label for="radius">Radius (m):</label>
-                    <input type="number" id="radius" value="50" style="width: 60px;" />
-                    <button id="minus">-</button>
-                    <button id="plus">+</button>
-                </div>
-                <div style="margin-top: 10px;">
-                    <label for="location-input">Location:</label>
-                    <input type="text" id="location-input" placeholder="Business Structure Nodes" />
-                </div>
-                <div style="margin-top: 10px;">
-                    <label for="validation-order-input">Validation Order:</label>
-                    <input type="text" id="validation-order-input" placeholder="Enter validation order" value="GPS,WIFI" />
-                </div>
-                <button id="plot-point" style="margin-top: 10px; background-color: #0A66C2;">Plot Point</button>
-            `;
+                <label for="name-input">Name:</label>
+                <input type="text" id="name-input" placeholder="" />
+            </div>
+            <div>
+                <label for="description-input">Description:</label>
+                <input type="text" id="description-input" placeholder="" />
+            </div>
+            <div>
+                <label for="radius">Radius (m):</label>
+                <input type="number" id="radius" value="50" style="width: 60px;" />
+                <button id="minus">-</button>
+                <button id="plus">+</button>
+            </div>
+            <div>
+                <label for="location-input">Location:</label>
+                <input type="text" id="location-input" placeholder="Business Structure Nodes" />
+            </div>
+            <div>
+                <label for="validation-order-input">Validation Order:</label>
+                <input type="text" id="validation-order-input" placeholder="Enter validation order" value="GPS,WIFI" />
+            </div>
+            <div>
+                <label for="wifi-networks-input">WiFi Networks:</label>
+                <input type="text" id="wifi-networks-input" placeholder="" />
+            </div>
+            <button id="plot-point" style="background-color: #0A66C2;">Add Known Place</button>
+        `;
 
             L.DomEvent.disableClickPropagation(container);
 
@@ -688,8 +731,8 @@
             var container = L.DomUtil.create('div', 'leaflet-control custom-name-radius-control');
             container.innerHTML = `
             <div id="bing-search-container">
-                <input type="text" id="bing-search-input" placeholder="Enter address" />
-                <button id="bing-search-btn">Search</button>
+                <input type="text" id="bing-search-input" placeholder="Enter Address or Lat/Long" />
+                <button id="bing-search-btn">Search Address</button>
             </div>
         `;
             L.DomEvent.disableClickPropagation(container);
@@ -697,8 +740,12 @@
         }
     });
 
+    L.control.zoom({
+        position: 'bottomright'
+    }).addTo(newMap);
 
     newMap.addControl(new bingSearchControl());
+    newMap.removeControl(newMap.zoomControl);
 
 
     document.getElementById("bing-search-input").addEventListener("keypress", function (e) {
@@ -791,8 +838,12 @@
 
         var lat = marker.getLatLng().lat;
         var lng = marker.getLatLng().lng;
+
         var radius = parseInt(document.getElementById("radius").value) || 50;
+
         var name = document.getElementById("name-input").value || "Unnamed Location";
+        var description = document.getElementById("description-input").value || "";
+        var wifiNetworks = document.getElementById("wifi-networks-input").value || "";
 
         var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
         var existingNames = Array.from(table.getElementsByTagName('tr')).map(function (row) {
@@ -811,19 +862,28 @@
             return;
         }
 
-        var row = table.insertRow(0); // Insert at the top
+        var row = table.insertRow(0);
 
         var nameCell = row.insertCell(0);
-        var latCell = row.insertCell(1);
-        var lngCell = row.insertCell(2);
-        var radiusCell = row.insertCell(3);
-        var locationCell = row.insertCell(4);
-        var validationOrderCell = row.insertCell(5);
-        var actionCell = row.insertCell(6);
+        var descriptionCell = row.insertCell(1);
+        var latCell = row.insertCell(2);
+        var lngCell = row.insertCell(3);
+        var radiusCell = row.insertCell(4);
+        var locationCell = row.insertCell(5);
+        var validationOrderCell = row.insertCell(6);
+        var wifiNetworksCell = row.insertCell(7);
+        var actionCell = row.insertCell(8);
 
         nameCell.textContent = name;
+
+        var descriptionInput = document.createElement("input");
+        descriptionInput.type = "text"
+        descriptionInput.value = description;
+        descriptionCell.appendChild(descriptionInput);
+
         latCell.textContent = lat.toFixed(6);
         lngCell.textContent = lng.toFixed(6);
+
         radiusCell.textContent = radius;
 
         var locationInput = document.createElement("input");
@@ -833,8 +893,13 @@
 
         var validationOrderInput = document.createElement("input");
         validationOrderInput.type = "text";
-        validationOrderInput.value = "GPS,WIFI";
+        validationOrderInput.value = document.getElementById("validation-order-input").value || "GPS,WIFI";
         validationOrderCell.appendChild(validationOrderInput);
+
+        var wifiNetworksInput = document.createElement("input");
+        wifiNetworksInput.type = "text";
+        wifiNetworksInput.value = wifiNetworks;
+        wifiNetworksCell.appendChild(wifiNetworksInput);
 
         var deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
@@ -866,19 +931,19 @@
         circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
 
         deleteButton.onclick = function () {
-        if (confirm("Are you sure you want to delete this location?")) {
-            var index = circlesOnMap.findIndex(function (item) {
-                return item.id === circleId;
-            });
+            if (confirm("Are you sure you want to delete this location?")) {
+                var index = circlesOnMap.findIndex(function (item) {
+                    return item.id === circleId;
+                });
 
-            if (index !== -1) {
-                var rowToDelete = circlesOnMap[index].row;
-                rowToDelete.parentNode.removeChild(rowToDelete);
-                newMap.removeLayer(circlesOnMap[index].circle);
-                circlesOnMap.splice(index, 1);
+                if (index !== -1) {
+                    var rowToDelete = circlesOnMap[index].row;
+                    rowToDelete.parentNode.removeChild(rowToDelete);
+                    newMap.removeLayer(circlesOnMap[index].circle);
+                    circlesOnMap.splice(index, 1);
+                }
             }
-        }
-    };
+        };
 
         viewButton.onclick = function () {
             newMap.setView([lat, lng]);
@@ -887,6 +952,8 @@
             document.getElementById("radius").value = radius;
             document.getElementById("location-input").value = locationInput.value;
             document.getElementById("validation-order-input").value = validationOrderInput.value;
+            document.getElementById("description-input").value = descriptionInput.value;
+            document.getElementById("wifi-networks-input").value = wifiNetworksInput.value;
             updateLocation(lat, lng);
             window.scrollTo(0, 0);
             filterTable();
@@ -896,21 +963,30 @@
     }
 
     // Function for automatic point plotting (used by upload button)
-    function plotPlaceOnMap(name, lat, lng, radius, locationPath = "", validationOrder = "GPS,WIFI") {
+    function plotPlaceOnMap(name, lat, lng, radius, locationPath = "", validationOrder = "GPS,WIFI", description = "", wifiNetworks = "") {
         var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
-        var row = table.insertRow(-1); // Insert at the end
+        var row = table.insertRow(-1);
 
         var nameCell = row.insertCell(0);
-        var latCell = row.insertCell(1);
-        var lngCell = row.insertCell(2);
-        var radiusCell = row.insertCell(3);
-        var locationCell = row.insertCell(4);
-        var validationOrderCell = row.insertCell(5);
-        var actionCell = row.insertCell(6);
+        var descriptionCell = row.insertCell(1);
+        var latCell = row.insertCell(2);
+        var lngCell = row.insertCell(3);
+        var radiusCell = row.insertCell(4);
+        var locationCell = row.insertCell(5);
+        var validationOrderCell = row.insertCell(6);
+        var wifiNetworksCell = row.insertCell(7);
+        var actionCell = row.insertCell(8);
 
         nameCell.textContent = name;
+
+        var descriptionInput = document.createElement("input");
+        descriptionInput.type = "text"
+        descriptionInput.value = description;
+        descriptionCell.appendChild(descriptionInput);
+
         latCell.textContent = lat.toFixed(6);
         lngCell.textContent = lng.toFixed(6);
+
         radiusCell.textContent = radius;
 
         var locationInput = document.createElement("input");
@@ -923,6 +999,11 @@
         validationOrderInput.value = validationOrder;
         validationOrderCell.appendChild(validationOrderInput);
 
+        var wifiNetworksInput = document.createElement("input");
+        wifiNetworksInput.type = "text";
+        wifiNetworksInput.value = wifiNetworks;
+        wifiNetworksCell.appendChild(wifiNetworksInput);
+
         var deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
         deleteButton.classList.add("delete-btn");
@@ -953,27 +1034,29 @@
         circlesOnMap.push({ id: circleId, circle: plottedCircle, row: row });
 
         deleteButton.onclick = function () {
-        if (confirm("Are you sure you want to delete this location?")) {
-            var index = circlesOnMap.findIndex(function (item) {
-                return item.id === circleId;
-            });
+            if (confirm("Are you sure you want to delete this location?")) {
+                var index = circlesOnMap.findIndex(function (item) {
+                    return item.id === circleId;
+                });
 
-            if (index !== -1) {
-                var rowToDelete = circlesOnMap[index].row;
-                rowToDelete.parentNode.removeChild(rowToDelete);
-                newMap.removeLayer(circlesOnMap[index].circle);
-                circlesOnMap.splice(index, 1);
+                if (index !== -1) {
+                    var rowToDelete = circlesOnMap[index].row;
+                    rowToDelete.parentNode.removeChild(rowToDelete);
+                    newMap.removeLayer(circlesOnMap[index].circle);
+                    circlesOnMap.splice(index, 1);
+                }
             }
-        }
-    };
+        };
 
         viewButton.onclick = function () {
             newMap.setView([lat, lng]);
             document.getElementById("name-input").value = name;
             document.getElementById("searchInput").value = name;
             document.getElementById("radius").value = radius;
-            document.getElementById("location-input").value = locationInput.value; // Set location input value
+            document.getElementById("location-input").value = locationInput.value;
             document.getElementById("validation-order-input").value = validationOrderInput.value;
+            document.getElementById("description-input").value = descriptionInput.value;
+            document.getElementById("wifi-networks-input").value = wifiNetworksInput.value;
             updateLocation(lat, lng);
             window.scrollTo(0, 0);
             filterTable();
@@ -1037,12 +1120,14 @@
                             const latitude = knownPlace.latitude;
                             const longitude = knownPlace.longitude;
                             const radius = knownPlace.radius;
+                            const description = knownPlace.description || "";
+                            const wifiNetworks = knownPlace.wifiNetworks ? knownPlace.wifiNetworks.join(', ') : "";
 
                             // Extract location paths
                             const locations = knownPlace.locations || [];
                             const locationPaths = locations.map(location => location.path).join(',');
 
-                            plotPlaceOnMap(name, latitude, longitude, radius, locationPaths);
+                            plotPlaceOnMap(name, latitude, longitude, radius, locationPaths, knownPlace.validationOrder.join(','), description, wifiNetworks);
                         }
                     });
                     showSearchBar();
@@ -1054,8 +1139,7 @@
         } catch (error) {
             console.error('Error parsing JSON:', error);
             alert('There was an error reading the JSON file.');
-        }
-        finally {
+        } finally {
             resetFileInput();
         }
     }
@@ -1096,8 +1180,10 @@
                     const radius = parseInt(cells[3]);
                     const locationPath = cells[4].replace(/"/g, '');
                     const validationOrder = cells[5].replace(/"/g, '');
+                    const description = cells[6] ? cells[6].replace(/"/g, '') : ""; // New field
+                    const wifiNetworks = cells[8] ? cells[8].replace(/"/g, '') : ""; // New field
 
-                    plotPlaceOnMap(name, latitude, longitude, radius, locationPath, validationOrder);
+                    plotPlaceOnMap(name, latitude, longitude, radius, locationPath, validationOrder, description, wifiNetworks);
                 }
             }
         }
@@ -1144,14 +1230,14 @@
             var cells = rows[i].getElementsByTagName("td");
             var row = [
                 cells[0].textContent, // Name
-                cells[1].textContent, // Latitude
-                cells[2].textContent, // Longitude
-                cells[3].textContent, // Radius
-                `"${cells[4].getElementsByTagName("input")[0].value}"`, // Location Path
-                `"${cells[5].getElementsByTagName("input")[0].value}"`, // Validation Order
-                "", // Description (empty)
+                cells[2].textContent, // Latitude
+                cells[3].textContent, // Longitude
+                cells[4].textContent, // Radius
+                `"${cells[5].getElementsByTagName("input")[0].value}"`, // Location Path
+                `"${cells[6].getElementsByTagName("input")[0].value}"`, // Validation Order
+                `"${cells[1].getElementsByTagName("input")[0].value}"`, // Description
                 "", // Accuracy (empty)
-                ""  // Wi-Fi Networks (empty)
+                `"${cells[7].getElementsByTagName("input")[0].value}"`  // Wi-Fi Networks
             ].join(",");
             csvContent += row + "\n";
         }
@@ -1160,7 +1246,7 @@
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "KnownPlaces.csv");
-        document.body.appendChild(link); // Required for FF
+        document.body.appendChild(link);
 
         link.click();
         document.body.removeChild(link);
