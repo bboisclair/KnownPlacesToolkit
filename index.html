@@ -687,7 +687,13 @@
     var newMap = L.map('map', {
         center: [42.614689, -71.324092],
         zoom: 17,
-        layers: [googleSat]
+        layers: [googleSat],
+        minZoom: 2,
+        maxBounds: [
+            [-90, -180],
+            [90, 180]
+        ],
+        maxBoundsViscosity: 1.0
     });
 
     var baseMaps = {
