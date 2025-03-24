@@ -7,8 +7,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
-
     <style>
+        /* 
+
+        #     # #    #  #####     ### #    #  #####          
+        #     # #   #  #     #     #  #    # #    #
+        #     # #  #   #           #  ##   # #         
+        #     # ###    #  ####     #  # #  # #          
+        #     # #  #   #     #     #  #  # # #      
+        #     # #   #  #     #     #  #   ## #    # ### 
+         #####  #    #  #####     ### #    #  ####  ### 
+        
+         * Known Places Toolkit
+         * Created by Brandon Boisclair
+         * © 2025 Brandon Boisclair. All rights reserved.
+         
+         */
         body {
             background-color: #005151;
             color: white;
@@ -23,7 +37,7 @@
         }
 
         #map {
-            height: 500px;
+            height: 525px;
             width: 100%;
         }
 
@@ -488,6 +502,16 @@
         #help-link:hover {
             background-color: #084d92;
         }
+
+        .disclaimer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            margin-top: 20px;
+            width: 100%;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -522,6 +546,7 @@
                         <th>Latitude</th>
                         <th>Longitude</th>
                         <th>Radius</th>
+                        <th>Accuracy</th>
                         <th>Location</th>
                         <th>Validation Order</th>
                         <th>WiFi Networks</th>
@@ -571,7 +596,8 @@
             </ul>
             <h4>Manual Plotting:</h4>
             <ul>
-                <li>Click on the map to place a marker. NOTE: You can click around the map to move the marker and adjust the radius as necessary.</li>
+                <li>Click on the map to place a marker. NOTE: You can click around the map to move the marker and adjust
+                    the radius as necessary.</li>
                 <li>Fill in the fields within the control panel.</li>
                 <li>Click the "Add Known Place" button to add the location to the map and table.</li>
             </ul>
@@ -690,9 +716,13 @@
             </div>
             <div>
                 <label for="radius">Radius (m):</label>
-                <input type="number" id="radius" value="50" style="width: 60px;" />
+                <input type="number" id="radius" value="50" style="width: 60px;" min="1" />
                 <button id="minus">-</button>
                 <button id="plus">+</button>
+            </div>
+            <div>
+                <label for="accuracy-input">Accuracy:</label>
+                <input type="number" id="accuracy-input" value="10" min="10" max="5000" />
             </div>
             <div>
                 <label for="location-input">Location:</label>
@@ -700,7 +730,7 @@
             </div>
             <div>
                 <label for="validation-order-input">Validation Order:</label>
-                <input type="text" id="validation-order-input" placeholder="Enter validation order" value="GPS,WIFI" />
+                <input type="text" id="validation-order-input" placeholder="GPS,WIFI,QR CODE" />
             </div>
             <div>
                 <label for="wifi-networks-input">WiFi Networks:</label>
@@ -840,6 +870,7 @@
         var lng = marker.getLatLng().lng;
 
         var radius = parseInt(document.getElementById("radius").value) || 50;
+        var accuracy = parseInt(document.getElementById("accuracy-input").value) || 10;
 
         var name = document.getElementById("name-input").value || "Unnamed Location";
         var description = document.getElementById("description-input").value || "";
@@ -869,10 +900,11 @@
         var latCell = row.insertCell(2);
         var lngCell = row.insertCell(3);
         var radiusCell = row.insertCell(4);
-        var locationCell = row.insertCell(5);
-        var validationOrderCell = row.insertCell(6);
-        var wifiNetworksCell = row.insertCell(7);
-        var actionCell = row.insertCell(8);
+        var accuracyCell = row.insertCell(5);
+        var locationCell = row.insertCell(6);
+        var validationOrderCell = row.insertCell(7);
+        var wifiNetworksCell = row.insertCell(8);
+        var actionCell = row.insertCell(9);
 
         nameCell.textContent = name;
 
@@ -886,6 +918,13 @@
 
         radiusCell.textContent = radius;
 
+        var accuracyInput = document.createElement("input");
+        accuracyInput.type = "number";
+        accuracyInput.value = accuracy;
+        accuracyInput.min = "10";
+        accuracyInput.max = "5000";
+        accuracyCell.appendChild(accuracyInput);
+
         var locationInput = document.createElement("input");
         locationInput.type = "text";
         locationInput.value = document.getElementById("location-input").value || "";
@@ -893,7 +932,7 @@
 
         var validationOrderInput = document.createElement("input");
         validationOrderInput.type = "text";
-        validationOrderInput.value = document.getElementById("validation-order-input").value || "GPS,WIFI";
+        validationOrderInput.value = document.getElementById("validation-order-input").value || "";
         validationOrderCell.appendChild(validationOrderInput);
 
         var wifiNetworksInput = document.createElement("input");
@@ -950,6 +989,7 @@
             document.getElementById("name-input").value = name;
             document.getElementById("searchInput").value = name;
             document.getElementById("radius").value = radius;
+            document.getElementById("accuracy-input").value = accuracyInput.value;
             document.getElementById("location-input").value = locationInput.value;
             document.getElementById("validation-order-input").value = validationOrderInput.value;
             document.getElementById("description-input").value = descriptionInput.value;
@@ -963,7 +1003,7 @@
     }
 
     // Function for automatic point plotting (used by upload button)
-    function plotPlaceOnMap(name, lat, lng, radius, locationPath = "", validationOrder = "GPS,WIFI", description = "", wifiNetworks = "") {
+    function plotPlaceOnMap(name, lat, lng, radius, locationPath = "", validationOrder = "GPS,WIFI", description = "", wifiNetworks = "", accuracy = 10) {
         var table = document.getElementById("locationTable").getElementsByTagName('tbody')[0];
         var row = table.insertRow(-1);
 
@@ -972,10 +1012,11 @@
         var latCell = row.insertCell(2);
         var lngCell = row.insertCell(3);
         var radiusCell = row.insertCell(4);
-        var locationCell = row.insertCell(5);
-        var validationOrderCell = row.insertCell(6);
-        var wifiNetworksCell = row.insertCell(7);
-        var actionCell = row.insertCell(8);
+        var accuracyCell = row.insertCell(5); // New accuracy cell
+        var locationCell = row.insertCell(6);
+        var validationOrderCell = row.insertCell(7);
+        var wifiNetworksCell = row.insertCell(8);
+        var actionCell = row.insertCell(9);
 
         nameCell.textContent = name;
 
@@ -988,6 +1029,13 @@
         lngCell.textContent = lng.toFixed(6);
 
         radiusCell.textContent = radius;
+
+        var accuracyInput = document.createElement("input"); // Editable accuracy input
+        accuracyInput.type = "number";
+        accuracyInput.value = accuracy;
+        accuracyInput.min = "10";
+        accuracyInput.max = "5000";
+        accuracyCell.appendChild(accuracyInput);
 
         var locationInput = document.createElement("input");
         locationInput.type = "text";
@@ -1053,6 +1101,7 @@
             document.getElementById("name-input").value = name;
             document.getElementById("searchInput").value = name;
             document.getElementById("radius").value = radius;
+            document.getElementById("accuracy-input").value = accuracyInput.value; // Set accuracy value
             document.getElementById("location-input").value = locationInput.value;
             document.getElementById("validation-order-input").value = validationOrderInput.value;
             document.getElementById("description-input").value = descriptionInput.value;
@@ -1121,13 +1170,14 @@
                             const longitude = knownPlace.longitude;
                             const radius = knownPlace.radius;
                             const description = knownPlace.description || "";
+                            const accuracy = knownPlace.accuracy || 10; // Ensure accuracy is defined
                             const wifiNetworks = knownPlace.wifiNetworks ? knownPlace.wifiNetworks.join(', ') : "";
 
                             // Extract location paths
                             const locations = knownPlace.locations || [];
                             const locationPaths = locations.map(location => location.path).join(',');
 
-                            plotPlaceOnMap(name, latitude, longitude, radius, locationPaths, knownPlace.validationOrder.join(','), description, wifiNetworks);
+                            plotPlaceOnMap(name, latitude, longitude, radius, locationPaths, knownPlace.validationOrder.join(','), description, wifiNetworks, accuracy);
                         }
                     });
                     showSearchBar();
@@ -1180,14 +1230,14 @@
                     const radius = parseInt(cells[3]);
                     const locationPath = cells[4].replace(/"/g, '');
                     const validationOrder = cells[5].replace(/"/g, '');
-                    const description = cells[6] ? cells[6].replace(/"/g, '') : ""; // New field
-                    const wifiNetworks = cells[8] ? cells[8].replace(/"/g, '') : ""; // New field
+                    const description = cells[6] ? cells[6].replace(/"/g, '') : "";
+                    const accuracy = cells[7] ? parseInt(cells[7]) : 10; // Ensure accuracy is defined
+                    const wifiNetworks = cells[8] ? cells[8].replace(/"/g, '') : "";
 
-                    plotPlaceOnMap(name, latitude, longitude, radius, locationPath, validationOrder, description, wifiNetworks);
+                    plotPlaceOnMap(name, latitude, longitude, radius, locationPath, validationOrder, description, wifiNetworks, accuracy);
                 }
             }
         }
-        showSearchBar();
         resetFileInput();
     }
 
@@ -1234,11 +1284,11 @@
                 cells[2].textContent, // Latitude
                 cells[3].textContent, // Longitude
                 cells[4].textContent, // Radius
-                `"${cells[5].getElementsByTagName("input")[0].value}"`, // Location Path
-                `"${cells[6].getElementsByTagName("input")[0].value}"`, // Validation Order
+                `"${cells[6].getElementsByTagName("input")[0].value}"`, // Location Path
+                `"${cells[7].getElementsByTagName("input")[0].value}"`, // Validation Order
                 `"${cells[1].getElementsByTagName("input")[0].value}"`, // Description
-                "", // Accuracy (empty)
-                `"${cells[7].getElementsByTagName("input")[0].value}"`  // Wi-Fi Networks
+                cells[5].getElementsByTagName("input")[0].value, // Accuracy (without quotes)
+                `"${cells[8].getElementsByTagName("input")[0].value}"`  // Wi-Fi Networks
             ].join(",");
             csvContent += row + "\n";
         }
