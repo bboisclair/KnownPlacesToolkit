@@ -1122,7 +1122,7 @@
    
                            // Extract location paths
                            const locations = knownPlace.locations || [];
-                           const locationPaths = locations.map(location => location.path).join(',');
+                           const locationPaths = locations.map(location => `"${location.path}"`).join(',');
    
                            plotPlaceOnMap(name, latitude, longitude, radius, locationPaths, knownPlace.validationOrder.join(','), description, wifiNetworks, accuracy);
                        }
