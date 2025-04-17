@@ -1122,7 +1122,7 @@
    
                            // Extract location paths
                            const locations = knownPlace.locations || [];
-                           const locationPaths = locations.map(location => `"${location.path}"`).join(',');
+                           const locationPaths = `"${locations.map(location => `"${location.path}"`).join(',').replace(/"/g, '""')}"`;
    
                            plotPlaceOnMap(name, latitude, longitude, radius, locationPaths, knownPlace.validationOrder.join(','), description, wifiNetworks, accuracy);
                        }
@@ -1175,7 +1175,7 @@
                    const latitude = parseFloat(cells[1]);
                    const longitude = parseFloat(cells[2]);
                    const radius = parseInt(cells[3]);
-                   const locationPath = cells[4].replace(/"/g, '');
+                   const locationPath = cells[4];
                    const validationOrder = cells[5].replace(/"/g, '');
                    const description = cells[6] ? cells[6].replace(/"/g, '') : "";
                    const accuracy = cells[7] ? parseInt(cells[7]) : 10; // Ensure accuracy is defined
