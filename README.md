@@ -6,7 +6,7 @@ Overview
 
 The Known Places Toolkit is a web-based tool that allows users to plot and manage known places on a map. Users can add, view, and delete locations, as well as upload and download location data in JSON or CSV format.
 
-The downloaded files will be in a format that is usable for the import into Pro WFM via the Data Import Tool.
+The downloaded files will be in a format that is usable for the import into the application via the Data Import Tool.
 
 Features
 --------
@@ -85,5 +85,3 @@ Notes
 *   The optional columns in the file are:
     *   Description, Accuracy, Wi-Fi Networks
 *   Location Path, Validation Order and Wi-Fi Networks fields contain comma separated list of values and is required to be in quotes.
-
-Disclaimer: This is not a supported product by UKG. There is no guarantee that this application will function as intended. Use at your own risk.
